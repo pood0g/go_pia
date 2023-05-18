@@ -12,12 +12,14 @@ type KeyPair struct {
 	pubKey string
 }
 
+// converts []byte to [32]byte
 func conv32(key *[]byte) *[32]byte {
 	var b32 [32]byte
 	copy(b32[:], *key)
 	return &b32
 }
 
+// converts [32]byte to []byte
 func conv(key *[32]byte) *[]byte {
 	b := key[:]
 	return &b

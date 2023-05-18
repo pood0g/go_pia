@@ -29,5 +29,5 @@ func runShellCommand(command string, args []string) {
 	cmd, err:= exec.Command(command, args...).Output()
 	handleFatal(err)
 
-	fmt.Print(cmd)
+	fmt.Printf("%s", cmd)
 }
