@@ -44,3 +44,7 @@ type Regions struct {
 	Offline     bool    `json:"offline,omitempty"`
 	Servers     Servers `json:"servers,omitempty"`
 }
+
+type PIAToken struct{
+	Token string
+}

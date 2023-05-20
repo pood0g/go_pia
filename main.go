@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	// "sync"
 )
 
@@ -13,8 +14,16 @@ func main() {
 	
 	for _, p := range regions.Regions {
 		fmt.Printf("%s\n", p.Name)
-		fmt.Printf("\t%s\n", p.Servers.Wg[0].IP)
+		for _, ip := range p.Servers.Wg {
+			fmt.Printf("\t%s\n", ip.IP)
+		}
 	}
+
+	username := os.Getenv("PIA_USER")
+	password := os.Getenv("PIA_PASS")
+	auth := getToken(username, password)
+
+	fmt.Printf("%s\n", auth.Token)
 
 	keyPair := genKeyPair()
 	fmt.Println(keyPair.prvKey)
