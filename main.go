@@ -2,19 +2,22 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	// "sync"
 )
 
-var waitGroup sync.WaitGroup
+// var waitGroup sync.WaitGroup
 
 func main() {
-	waitGroup.Add(1)
-	ipAddr := makeGETRequest("http://api.ipify.org")
-	fmt.Println(ipAddr)
-	args := []string{"-c 10", "8.8.8.8"}
-	go runShellCommand("ping", args)
+	// waitGroup.Add(1)
+	regions := getRegionData()
+	
+	for _, p := range regions.Regions {
+		fmt.Printf("%s\n", p.Name)
+		fmt.Printf("\t%s\n", p.Servers.Wg[0].IP)
+	}
+
 	keyPair := genKeyPair()
 	fmt.Println(keyPair.prvKey)
 	fmt.Println(keyPair.pubKey)
-	waitGroup.Wait()
+	// waitGroup.Wait()
 }
