@@ -52,6 +52,24 @@ type Regions struct {
 }
 
 // PIA Auth Token struct
-type PIAToken struct{
+type PIAToken struct {
 	Token string `json:"token"`
+}
+
+type PIAConfig struct {
+	Status string `json:"status"`
+	ServerKey string `json:"server_key"`
+	ServerPort string `json:"server_port"`
+	ServerIP string `json:"server_ip"`
+	ServerVIP string `json:"server_vip"`
+	PeerIP string `json:"peer_ip"`
+	PeerPubkey string `json:"peer_pubkey"`
+	DNSServers []string `json:"dns_servers"`
+}
+
+
+// Wireguard Keypair struct
+type WGKeyPair struct {
+	pubKey string
+	prvKey string
 }

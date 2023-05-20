@@ -7,11 +7,6 @@ import (
 	"golang.org/x/crypto/curve25519"
 )
 
-type KeyPair struct {
-	prvKey string
-	pubKey string
-}
-
 // converts []byte to [32]byte
 func conv32(key *[]byte) *[32]byte {
 	var b32 [32]byte
@@ -46,14 +41,14 @@ func genPubkey(privKey *[32]byte) (*[]byte, *[]byte) {
 	return conv(privKey), conv(&pubKey)
 }
 
-func genKeyPair() KeyPair {
+func genKeyPair() WGKeyPair {
 	
 	prvKey, pubKey := genPubkey(genPrivKey())
 
 	prvKeyb64 := base64.StdEncoding.EncodeToString(*prvKey)
 	pubKeyb64 := base64.StdEncoding.EncodeToString(*pubKey)
 
-	return KeyPair{
+	return WGKeyPair{
 		prvKey: prvKeyb64,
 		pubKey: pubKeyb64,
 	}
