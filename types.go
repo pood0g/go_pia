@@ -1,15 +1,11 @@
 package main
 
-
+// Region data: root struct
 type RegionData struct {
 	Groups  Groups    `json:"groups,omitempty"`
 	Regions []Regions `json:"regions,omitempty"`
 }
-type GroupData struct {
-	Name  string `json:"name,omitempty"`
-	Ports []int  `json:"ports,omitempty"`
-}
-
+// Region data: Group struct
 type Groups struct {
 	Ikev2      []GroupData      `json:"ikev2,omitempty"`
 	Meta       []GroupData       `json:"meta,omitempty"`
@@ -20,12 +16,20 @@ type Groups struct {
 	Wg         []GroupData         `json:"wg,omitempty"`
 }
 
+// Region data: Group.subelement struct
+type GroupData struct {
+	Name  string `json:"name,omitempty"`
+	Ports []int  `json:"ports,omitempty"`
+}
+
+// Region data Regions.Servers.subelements struct
 type ServerData struct {
 	IP  string `json:"ip,omitempty"`
 	Cn  string `json:"cn,omitempty"`
 	Van bool   `json:"van,omitempty"`
 }
 
+// Region data Regions.Servers struct
 type Servers struct {
 	Ikev2   []ServerData   `json:"ikev2,omitempty"`
 	Meta    []ServerData    `json:"meta,omitempty"`
@@ -33,6 +37,8 @@ type Servers struct {
 	Ovpnudp []ServerData `json:"ovpnudp,omitempty"`
 	Wg      []ServerData      `json:"wg,omitempty"`
 }
+
+// Region data Regions struct
 type Regions struct {
 	ID          string  `json:"id,omitempty"`
 	Name        string  `json:"name,omitempty"`
@@ -45,6 +51,7 @@ type Regions struct {
 	Servers     Servers `json:"servers,omitempty"`
 }
 
+// PIA Auth Token struct
 type PIAToken struct{
-	Token string
+	Token string `json:"token"`
 }
