@@ -2,13 +2,8 @@ package main
 
 import (
 	"bytes"
-	// "crypto/tls"
-	// "crypto/x509"
 	"encoding/json"
 	"fmt"
-	// "io/ioutil"
-	// "log"
-	// "net/http"
 	"net/url"
 	"sort"
 )

@@ -5,7 +5,10 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"io/ioutil"
 	"net/http"
+	"crypto/x509"
+	"crypto/tls"
 	// "os/exec"
 )
 
@@ -44,3 +47,32 @@ func makePOSTRequest(url, contentType string, body []byte) []byte {
 
 // 	fmt.Printf("%s", cmd)
 // }
+
+func getPIAConfig(url string, body []byte, client http.Client) []byte {
+	reqBody := bytes.NewReader([]byte(body))
+	req, err := http.NewRequest(http.MethodGet, url, reqBody)
+	handleFatal(err)
+	resp, err := client.Do(req)
+	handleFatal(err)
+	defer resp.Body.Close()
+	respBody, err := io.ReadAll(resp.Body)
+
+	return respBody
+}
+
+func getTLSClient(certFile string) http.Client {
+
+	rootCAs := x509.NewCertPool()
+
+	cert, err := ioutil.ReadFile(certFile)
+	handleFatal(err)
+	if ok := rootCAs.AppendCertsFromPEM(cert); ! ok {
+		log.Fatalln("Certificate not added.")
+	}
+
+	config := &tls.Config{RootCAs: rootCAs}
+	transport := &http.Transport{TLSClientConfig: config}
+	client := &http.Client{Transport: transport}
+
+	return *client
+}
