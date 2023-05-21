@@ -3,12 +3,12 @@ package main
 import (
 	// "fmt"
 	"bytes"
-	"io"
-	"log"
-	"io/ioutil"
-	"net/http"
-	"crypto/x509"
 	"crypto/tls"
+	"crypto/x509"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 	// "os/exec"
 )
 
@@ -48,9 +48,8 @@ func makePOSTRequest(url, contentType string, body []byte) []byte {
 // 	fmt.Printf("%s", cmd)
 // }
 
-func getPIAConfig(url string, body []byte, client http.Client) []byte {
-	reqBody := bytes.NewReader([]byte(body))
-	req, err := http.NewRequest(http.MethodGet, url, reqBody)
+func makeGETRequestWithCA(url string, client http.Client) []byte {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	handleFatal(err)
 	resp, err := client.Do(req)
 	handleFatal(err)
@@ -60,19 +59,38 @@ func getPIAConfig(url string, body []byte, client http.Client) []byte {
 	return respBody
 }
 
-func getTLSClient(certFile string) http.Client {
+// work around for making https connection to IP with non trusted CA
+func getTLSClient() http.Client {
 
+	// skip initial TLS but verify the peer certificate with custom verification function, not 100% tested
+	config := &tls.Config{
+		InsecureSkipVerify: true,
+		VerifyPeerCertificate: verifyCert,
+	}
+	transport := &http.Transport{TLSClientConfig: config}
+	client := &http.Client{Transport: transport}
+
+	return *client
+}
+
+func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+	
 	rootCAs := x509.NewCertPool()
 
-	cert, err := ioutil.ReadFile(certFile)
+	cert, err := ioutil.ReadFile(PIA_CERT)
 	handleFatal(err)
 	if ok := rootCAs.AppendCertsFromPEM(cert); ! ok {
 		log.Fatalln("Certificate not added.")
 	}
 
-	config := &tls.Config{RootCAs: rootCAs}
-	transport := &http.Transport{TLSClientConfig: config}
-	client := &http.Client{Transport: transport}
+	hostCert, _ := x509.ParseCertificate(rawCerts[0])
+	opts := x509.VerifyOptions{
+		Roots: rootCAs,
+	}
+	if _, err := hostCert.Verify(opts); err != nil {
+		log.Println("Unable to verify cert")
+		return err
+	}
 
-	return *client
+	return nil
 }

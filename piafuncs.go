@@ -17,7 +17,7 @@ const CT_FORM string = "application/x-www-form-urlencoded"
 const PIA_CERT string = "./ca.rsa.4096.crt"
 
 // function to get and parse region JSON data
-func getRegionData() RegionData {
+func getPIAServerData() RegionData {
 	regionDataJson := makeGETRequest(REGION_URL)
 	// Remove the junk at the end of the response body.
 	regionDataJson = bytes.Split(regionDataJson, []byte("\n"))[0]
@@ -34,7 +34,7 @@ func getRegionData() RegionData {
 func getToken(username, password string) PIAToken {
 	// Build the application/x-www-form-urlencoded request body, URL escaping any special characters.
 	reqBody := []byte(fmt.Sprintf("username=%s&password=%s", url.QueryEscape(username), url.QueryEscape(password)))
-	
+
 	tokenJson := makePOSTRequest(
 		TOKEN_URL,
 		CT_FORM,
@@ -45,27 +45,19 @@ func getToken(username, password string) PIAToken {
 	return piaToken
 }
 
-// func getPIAConfig(serverip, token, pubkey string) PIAConfig {
-// 	client := getPIAHTTPClient()
-// 	reqBody := bytes.NewReader([]byte(fmt.Sprintf("pt=%s&pubkey=%s", url.QueryEscape(token), url.QueryEscape(pubkey))))
-// 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s:1337", serverip), reqBody)
-// 	handleFatal(err)
-// 	resp, err := client.Do(req)
-// }
+func getPIAConfig(serverip, serverport, token, pubkey string) PIAConfig {
 
-// func getPIAHTTPClient() http.Client {
+	var piaConfig PIAConfig
 
-// 	rootCAs := x509.NewCertPool()
+	client := getTLSClient()
+	url := fmt.Sprintf("https://%s:%s/addKey?pt=%s&pubkey=%s",
+		serverip,
+		serverport,
+		url.QueryEscape(token),
+		url.QueryEscape(pubkey),
+	)
+	resp := makeGETRequestWithCA(url, client)
+	json.Unmarshal(resp, &piaConfig)
 
-// 	cert, err := ioutil.ReadFile(PIA_CERT)
-// 	handleFatal(err)
-// 	if ok := rootCAs.AppendCertsFromPEM(cert); ! ok {
-// 		log.Fatalln("Certificate not added.")
-// 	}
-
-// 	config := &tls.Config{RootCAs: rootCAs}
-// 	transport := &http.Transport{TLSClientConfig: config}
-// 	client := &http.Client{Transport: transport}
-
-// 	return *client
-// }
+	return piaConfig
+}

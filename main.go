@@ -10,10 +10,11 @@ import (
 
 func main() {
 	// waitGroup.Add(1)
-	regions := getRegionData()
-	
-	for _, p := range regions.Regions {
-		fmt.Printf("%s\n", p.Name)
+	serverData := getPIAServerData()
+	keyPair := genKeyPair()
+
+	for i, p := range serverData.Regions {
+		fmt.Printf("[%d] %s\n", i, p.Name)
 		for _, ip := range p.Servers.Wg {
 			fmt.Printf("\t%s\n", ip.IP)
 		}
@@ -22,11 +23,16 @@ func main() {
 	username := os.Getenv("PIA_USER")
 	password := os.Getenv("PIA_PASS")
 	auth := getToken(username, password)
-
 	fmt.Printf("%s\n", auth.Token)
 
-	keyPair := genKeyPair()
-	fmt.Println(keyPair.prvKey)
-	fmt.Println(keyPair.pubKey)
+	piaConfig := getPIAConfig(
+		"154.6.147.75",
+		fmt.Sprintf("%d", serverData.Groups.Wg[0].Ports[0]),
+		auth.Token,
+		keyPair.pubKey,
+	)
+
+	fmt.Println(piaConfig.ServerKey, piaConfig.Status)
+	
 	// waitGroup.Wait()
 }
