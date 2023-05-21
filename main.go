@@ -22,7 +22,8 @@ func main() {
 
 	username := os.Getenv("PIA_USER")
 	password := os.Getenv("PIA_PASS")
-	auth := getToken(username, password)
+	auth, err := getToken(username, password)
+	handleFatal(err)
 	fmt.Printf("%s\n", auth.Token)
 
 	piaConfig := getPIAConfig(

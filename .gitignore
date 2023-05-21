@@ -3,3 +3,4 @@ __debug_bin
 ca.rsa.4096.crt
 test.json
 creds.sh
+cacert.crt

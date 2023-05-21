@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"sort"
@@ -31,7 +32,7 @@ func getPIAServerData() RegionData {
 }
 
 // function to get the auth token from PIA using username and password POST parameters
-func getToken(username, password string) PIAToken {
+func getToken(username, password string) (PIAToken, error) {
 	// Build the application/x-www-form-urlencoded request body, URL escaping any special characters.
 	reqBody := []byte(fmt.Sprintf("username=%s&password=%s", url.QueryEscape(username), url.QueryEscape(password)))
 
@@ -42,9 +43,13 @@ func getToken(username, password string) PIAToken {
 	)
 	var piaToken PIAToken
 	json.Unmarshal(tokenJson, &piaToken)
-	return piaToken
+	if piaToken.Token != "" {
+		return piaToken, nil
+	}
+	return piaToken, errors.New("no token received")
 }
 
+// adds generated pubkey to the server, responds with server pubkey, status code, DNS servers etc 
 func getPIAConfig(serverip, serverport, token, pubkey string) PIAConfig {
 
 	var piaConfig PIAConfig
