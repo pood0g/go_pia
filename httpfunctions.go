@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	// "os/exec"
 )
 
@@ -18,26 +18,38 @@ func handleFatal(err error) {
 	}
 }
 
-func makeGETRequest(url string) []byte {
+func makeGETRequest(url string) ([]byte, error) {
 
 	resp, err := http.Get(url)
-	handleFatal(err)
+	if err != nil {
+		return nil, err
+	}
+	
 	defer resp.Body.Close()
+	
 	body, err := io.ReadAll(resp.Body)
-	handleFatal(err)
+	if err != nil {
+		return nil, err
+	}
 
-	return body
+	return body, err
 }
 
-func makePOSTRequest(url, contentType string, body []byte) []byte {
+func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 	reqBody := bytes.NewReader(body)
 	resp, err := http.Post(url, contentType, reqBody)
-	handleFatal(err)
-	defer resp.Body.Close()
-	respBody , err := io.ReadAll(resp.Body)
-	handleFatal(err)
+	if err != nil {
+		return nil, err
+	}
 
-	return respBody
+	defer resp.Body.Close()
+
+	respBody , err := io.ReadAll(resp.Body)
+		if err != nil {
+		return nil, err
+	}
+
+	return respBody, err
 }
 
 // func runShellCommand(command string, args []string) {
@@ -48,7 +60,7 @@ func makePOSTRequest(url, contentType string, body []byte) []byte {
 // 	fmt.Printf("%s", cmd)
 // }
 
-func makeGETRequestWithCA(url string, client http.Client) []byte {
+func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	handleFatal(err)
 	resp, err := client.Do(req)
@@ -56,7 +68,7 @@ func makeGETRequestWithCA(url string, client http.Client) []byte {
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
 
-	return respBody
+	return respBody, err
 }
 
 // work around for making https connection to IP with non trusted CA
@@ -77,11 +89,12 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	
 	rootCAs := x509.NewCertPool()
 
-	caCert, err := ioutil.ReadFile(PIA_CERT)
+	caCert, err := os.ReadFile(PIA_CERT)
 	handleFatal(err)
 	if ok := rootCAs.AppendCertsFromPEM(caCert); ! ok {
 		log.Fatalln("Certificate not added.")
 	}
+	log.Printf("Certificate %s parsed successfully\n", PIA_CERT)
 
 	hostCert, _ := x509.ParseCertificate(rawCerts[0])
 	opts := x509.VerifyOptions{
@@ -91,6 +104,7 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 		log.Println("Unable to verify cert")
 		return err
 	}
+	log.Println("[+] Server certificate validated.")
 
 	return nil
 }

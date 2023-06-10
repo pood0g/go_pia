@@ -73,3 +73,9 @@ type WGKeyPair struct {
 	pubKey string
 	prvKey string
 }
+
+type AppConfig struct {
+	username string
+	password string
+	region uint8
+}
