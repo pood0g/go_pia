@@ -59,7 +59,7 @@ type PIAToken struct {
 type PIAConfig struct {
 	Status string `json:"status"`
 	ServerKey string `json:"server_key"`
-	ServerPort string `json:"server_port"`
+	ServerPort int16 `json:"server_port"`
 	ServerIP string `json:"server_ip"`
 	ServerVIP string `json:"server_vip"`
 	PeerIP string `json:"peer_ip"`

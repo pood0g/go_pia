@@ -19,10 +19,10 @@ type WgConfigInterface struct {
 }
 
 type WgConfig interface {
-	genConf() string
+	getText() string
 }
 
-func (p WgConfigPeer) genConf() string {
+func (p WgConfigPeer) getText() string {
 	config := "[Peer]\n"
 	config += fmt.Sprintf("PersistentKeepalive = %d\n", p.PersistenceKeepalive)
 	config += fmt.Sprintf("PublicKey = %s\n", p.PublicKey)
@@ -31,7 +31,7 @@ func (p WgConfigPeer) genConf() string {
 	return config
 }
 
-func (i WgConfigInterface) genConf() string {
+func (i WgConfigInterface) getText() string {
 	config := "[Interface]\n"
 	config += fmt.Sprintf("Address = %s\n", i.Address)
 	config += fmt.Sprintf("PrivateKey = %s\n", i.PrivateKey)
@@ -50,9 +50,9 @@ func genConfig(conf PIAConfig) (string) {
 		PersistenceKeepalive: 25,
 		PublicKey: conf.PeerPubkey,
 		AllowedIPs: "0.0.0.0/0, ::/0",
-		Endpoint: fmt.Sprintf("%s:%s", conf.ServerIP, conf.ServerPort),
+		Endpoint: fmt.Sprintf("%s:%d", conf.ServerIP, conf.ServerPort),
 	}
 
-	return fmt.Sprintf("%s\n%s", iface.genConf(), peer.genConf())
+	return fmt.Sprintf("%s\n%s", iface.getText(), peer.getText())
 
 }
