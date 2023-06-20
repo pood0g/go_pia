@@ -12,6 +12,7 @@ const (
 	Cyan   = "\033[36m"
 	Gray   = "\033[37m"
 	White  = "\033[97m"
+	logError = Red + "ERROR:" + Reset
 )
 
 // HTTP String constants used within the application.

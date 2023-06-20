@@ -23,15 +23,15 @@ func main() {
 
 	// Check environment variables are set
 	if len(username) == 0 || len(password) == 0 {
-		log.Fatalf("%sERROR:%s PIA_USER or PIA_PASS environment variables not set!", Red, Reset)
+		log.Fatalf("%s PIA_USER or PIA_PASS environment variables not set!", logError)
 	}
 
 	if runtime.GOOS != "linux" {
-		log.Fatalf("%sERROR:%s This app currently only supports linux OS", Red, Reset)
+		log.Fatalf("%s This app currently only supports linux OS", logError)
 	}
 
 	if cur_user, _ := user.Current(); cur_user.Uid != "0" {
-		log.Fatalf("%sERROR:%s Please run this program as root", Red, Reset)
+		log.Fatalf("%s Please run this program as root", logError)
 	}
 
 	serverData, err := getPIAServerData()
