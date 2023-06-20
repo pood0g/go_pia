@@ -48,7 +48,7 @@ func main() {
 
 	if piaConfig.Status == "OK" {
 		log.Printf("Got server public key.\n\n")
-		fmt.Println(genWgConfigFile(piaConfig))
+		fmt.Println(genWgConfigFile(piaConfig, keyPair))
 	} else {
 		log.Fatalln("failed")
 	}

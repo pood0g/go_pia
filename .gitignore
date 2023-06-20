@@ -2,6 +2,7 @@ go_pia
 __debug_bin
 ca.rsa.4096.crt
 test.json
+creds.env
 creds.sh
 cacert.crt
 config.json

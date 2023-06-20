@@ -56,16 +56,16 @@ func genKeyPair() WGKeyPair {
 	}
 }
 
-func genWgConfigFile(conf PIAConfig) string {
+func genWgConfigFile(conf PIAConfig, keys WGKeyPair) string {
 
 	iface := WgConfigInterface{
 		Address:    conf.PeerIP,
-		PrivateKey: conf.ServerKey,
+		PrivateKey: keys.prvKey,
 		DNS:        strings.Join(conf.DNSServers, ", "),
 	}
 	peer := WgConfigPeer{
 		PersistenceKeepalive: 25,
-		PublicKey:            conf.PeerPubkey,
+		PublicKey:            conf.ServerKey,
 		AllowedIPs:           "0.0.0.0/0, ::/0",
 		Endpoint:             fmt.Sprintf("%s:%d", conf.ServerIP, conf.ServerPort),
 	}
