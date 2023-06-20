@@ -3,8 +3,9 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"strings"
 	"fmt"
+	"os"
+	"strings"
 
 	"golang.org/x/crypto/curve25519"
 )
@@ -26,17 +27,17 @@ func conv(key *[32]byte) *[]byte {
 func genPrivKey() *[32]byte {
 	key := make([]byte, 32)
 	_, err := rand.Read(key)
-	handleFatal(err)
+	logFatal(err)
 	key[0] &= 248
 	key[31] &= 127
 	key[31] |= 64
-	
+
 	prvKey := conv32(&key)
 
 	return prvKey
 }
 
-// generate the public key from the private key 
+// generate the public key from the private key
 func genPubkey(privKey *[32]byte) (*[]byte, *[]byte) {
 	pubKey := [32]byte{}
 	curve25519.ScalarBaseMult(&pubKey, privKey)
@@ -44,7 +45,7 @@ func genPubkey(privKey *[32]byte) (*[]byte, *[]byte) {
 }
 
 func genKeyPair() WGKeyPair {
-	
+
 	prvKey, pubKey := genPubkey(genPrivKey())
 
 	prvKeyb64 := base64.StdEncoding.EncodeToString(*prvKey)
@@ -56,7 +57,7 @@ func genKeyPair() WGKeyPair {
 	}
 }
 
-func genWgConfigFile(conf PIAConfig, keys WGKeyPair) string {
+func genWgConfigFile(conf PIAConfig, keys WGKeyPair) []byte {
 
 	iface := WgConfigInterface{
 		Address:    conf.PeerIP,
@@ -70,6 +71,11 @@ func genWgConfigFile(conf PIAConfig, keys WGKeyPair) string {
 		Endpoint:             fmt.Sprintf("%s:%d", conf.ServerIP, conf.ServerPort),
 	}
 
-	return fmt.Sprintf("%s\n%s", iface.getText(), peer.getText())
+	return []byte(fmt.Sprintf("%s\n%s", iface.getText(), peer.getText()))
 
+}
+
+func writeFile(filename string, data []byte) error {
+	err := os.WriteFile(filename, data, 0600)
+	return err
 }

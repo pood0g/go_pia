@@ -5,15 +5,16 @@ type RegionData struct {
 	Groups  Groups    `json:"groups,omitempty"`
 	Regions []Regions `json:"regions,omitempty"`
 }
+
 // Region data: Group struct
 type Groups struct {
-	Ikev2      []GroupData      `json:"ikev2,omitempty"`
-	Meta       []GroupData       `json:"meta,omitempty"`
-	Ovpntcp    []GroupData    `json:"ovpntcp,omitempty"`
-	Ovpnudp    []GroupData    `json:"ovpnudp,omitempty"`
+	Ikev2      []GroupData `json:"ikev2,omitempty"`
+	Meta       []GroupData `json:"meta,omitempty"`
+	Ovpntcp    []GroupData `json:"ovpntcp,omitempty"`
+	Ovpnudp    []GroupData `json:"ovpnudp,omitempty"`
 	Proxysocks []GroupData `json:"proxysocks,omitempty"`
-	Proxyss    []GroupData    `json:"proxyss,omitempty"`
-	Wg         []GroupData         `json:"wg,omitempty"`
+	Proxyss    []GroupData `json:"proxyss,omitempty"`
+	Wg         []GroupData `json:"wg,omitempty"`
 }
 
 // Region data: Group.subelement struct
@@ -31,11 +32,11 @@ type ServerData struct {
 
 // Region data Regions.Servers struct
 type Servers struct {
-	Ikev2   []ServerData   `json:"ikev2,omitempty"`
-	Meta    []ServerData    `json:"meta,omitempty"`
+	Ikev2   []ServerData `json:"ikev2,omitempty"`
+	Meta    []ServerData `json:"meta,omitempty"`
 	Ovpntcp []ServerData `json:"ovpntcp,omitempty"`
 	Ovpnudp []ServerData `json:"ovpnudp,omitempty"`
-	Wg      []ServerData      `json:"wg,omitempty"`
+	Wg      []ServerData `json:"wg,omitempty"`
 }
 
 // Region data Regions struct
@@ -57,16 +58,15 @@ type PIAToken struct {
 }
 
 type PIAConfig struct {
-	Status string `json:"status"`
-	ServerKey string `json:"server_key"`
-	ServerPort int16 `json:"server_port"`
-	ServerIP string `json:"server_ip"`
-	ServerVIP string `json:"server_vip"`
-	PeerIP string `json:"peer_ip"`
-	PeerPubkey string `json:"peer_pubkey"`
+	Status     string   `json:"status"`
+	ServerKey  string   `json:"server_key"`
+	ServerPort int16    `json:"server_port"`
+	ServerIP   string   `json:"server_ip"`
+	ServerVIP  string   `json:"server_vip"`
+	PeerIP     string   `json:"peer_ip"`
+	PeerPubkey string   `json:"peer_pubkey"`
 	DNSServers []string `json:"dns_servers"`
 }
-
 
 // Wireguard Keypair struct
 type WGKeyPair struct {
@@ -82,15 +82,15 @@ type WGKeyPair struct {
 
 type WgConfigPeer struct {
 	PersistenceKeepalive uint8
-	PublicKey string
-	AllowedIPs string
-	Endpoint string
+	PublicKey            string
+	AllowedIPs           string
+	Endpoint             string
 }
 
 type WgConfigInterface struct {
-	Address string
+	Address    string
 	PrivateKey string
-	DNS string
+	DNS        string
 }
 
 type WgConfig interface {

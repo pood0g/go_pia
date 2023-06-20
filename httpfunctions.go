@@ -12,21 +12,15 @@ import (
 	// "os/exec"
 )
 
-func handleFatal(err error) {
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-}
-
 func makeGETRequest(url string) ([]byte, error) {
 
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	defer resp.Body.Close()
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -44,8 +38,8 @@ func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	respBody , err := io.ReadAll(resp.Body)
-		if err != nil {
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,9 +56,9 @@ func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 
 func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
-	handleFatal(err)
+	logFatal(err)
 	resp, err := client.Do(req)
-	handleFatal(err)
+	logFatal(err)
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
 
@@ -76,7 +70,7 @@ func getTLSClient() http.Client {
 
 	// skip initial TLS but verify the peer certificate with custom verification function, not 100% tested
 	config := &tls.Config{
-		InsecureSkipVerify: true,
+		InsecureSkipVerify:    true,
 		VerifyPeerCertificate: verifyCert,
 	}
 	transport := &http.Transport{TLSClientConfig: config}
@@ -86,12 +80,12 @@ func getTLSClient() http.Client {
 }
 
 func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-	
+
 	rootCAs := x509.NewCertPool()
 
 	caCert, err := os.ReadFile(PIA_CERT)
-	handleFatal(err)
-	if ok := rootCAs.AppendCertsFromPEM(caCert); ! ok {
+	logFatal(err)
+	if ok := rootCAs.AppendCertsFromPEM(caCert); !ok {
 		log.Fatalln("Certificate not added.")
 	}
 	log.Printf("Certificate %s parsed successfully\n", PIA_CERT)
