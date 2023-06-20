@@ -79,3 +79,20 @@ type WGKeyPair struct {
 // 	password string
 // 	region uint8
 // }
+
+type WgConfigPeer struct {
+	PersistenceKeepalive uint8
+	PublicKey string
+	AllowedIPs string
+	Endpoint string
+}
+
+type WgConfigInterface struct {
+	Address string
+	PrivateKey string
+	DNS string
+}
+
+type WgConfig interface {
+	getText() string
+}

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"math/rand"
 	"fmt"
-	"os"
 	"log"
+	"math/rand"
+	"os"
 	// "sync"
 )
 
@@ -48,10 +48,10 @@ func main() {
 
 	if piaConfig.Status == "OK" {
 		log.Printf("Got server public key.\n\n")
-		fmt.Println(genConfig(piaConfig))
+		fmt.Println(genWgConfigFile(piaConfig))
 	} else {
 		log.Fatalln("failed")
 	}
-	
+
 	// waitGroup.Wait()
 }

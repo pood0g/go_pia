@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"strings"
+	"fmt"
 
 	"golang.org/x/crypto/curve25519"
 )
@@ -54,3 +56,20 @@ func genKeyPair() WGKeyPair {
 	}
 }
 
+func genWgConfigFile(conf PIAConfig) string {
+
+	iface := WgConfigInterface{
+		Address:    conf.PeerIP,
+		PrivateKey: conf.ServerKey,
+		DNS:        strings.Join(conf.DNSServers, ", "),
+	}
+	peer := WgConfigPeer{
+		PersistenceKeepalive: 25,
+		PublicKey:            conf.PeerPubkey,
+		AllowedIPs:           "0.0.0.0/0, ::/0",
+		Endpoint:             fmt.Sprintf("%s:%d", conf.ServerIP, conf.ServerPort),
+	}
+
+	return fmt.Sprintf("%s\n%s", iface.getText(), peer.getText())
+
+}
