@@ -14,6 +14,10 @@ func main() {
 	var choice uint8
 	username := os.Getenv("PIA_USER")
 	password := os.Getenv("PIA_PASS")
+
+	if len(username) == 0 || len(password) == 0 {
+		log.Fatalf("ERROR: Username or Password is not set!")
+	}
 	// waitGroup.Add(1)
 	serverData, err := getPIAServerData()
 	handleFatal(err)
