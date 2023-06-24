@@ -8,7 +8,6 @@ import (
 	"sort"
 )
 
-
 // function to get and parse region JSON data
 func getPIAServerData() (RegionData, error) {
 	regionDataJson, err := makeGETRequest(REGION_URL)
@@ -41,20 +40,36 @@ func getToken(username, password string) (PIAToken, error) {
 	return piaToken, err
 }
 
-// adds generated pubkey to the server, responds with server pubkey, status code, DNS servers etc 
-func getPIAConfig(serverip, serverport, token, pubkey string) (PIAConfig, error) {
+// adds generated pubkey to the server, responds with server pubkey, status code, DNS servers etc
+func getPIAConfig(serverIP, serverPort, token, pubKey string) (PIAConfig, error) {
 
 	var piaConfig PIAConfig
 
 	client := getTLSClient()
-	url := fmt.Sprintf("https://%s:%s/addKey?pt=%s&pubkey=%s",
-		serverip,
-		serverport,
+	reqURL := fmt.Sprintf("https://%s:%s/addKey?pt=%s&pubkey=%s",
+		serverIP,
+		serverPort,
 		url.QueryEscape(token),
-		url.QueryEscape(pubkey),
+		url.QueryEscape(pubKey),
 	)
-	resp, err := makeGETRequestWithCA(url, client)
+	resp, err := makeGETRequestWithCA(reqURL, client)
 	json.Unmarshal(resp, &piaConfig)
 
 	return piaConfig, err
+}
+
+func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature, error) {
+	
+	var payloadAndSignature PIAPayloadAndSignature
+	
+	client := getTLSClient()
+	reqURL := fmt.Sprintf("https://%s:%s/getSignature?token=%s",
+		serverIP,
+		serverPort,
+		url.QueryEscape(token),
+	)
+	resp, err := makeGETRequestWithCA(reqURL, client)
+	json.Unmarshal(resp, &payloadAndSignature)
+	
+	return payloadAndSignature, err
 }

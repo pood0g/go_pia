@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -46,14 +47,36 @@ func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 
 func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
-	logFatal(err)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("%s", req.Header)
 	resp, err := client.Do(req)
-	logFatal(err)
+	if err != nil {
+		return nil, err
+	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
 
 	return respBody, err
 }
+
+// func makePOSTRequestWithCA(url string, client http.Client, body []byte) ([]byte, error) {
+// 	reqBody := bytes.NewReader(body)
+// 	req, err := http.NewRequest(http.MethodPost, url, reqBody)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header.Set("Content-Type", CT_FORM)
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer resp.Body.Close()
+// 	respBody, err := io.ReadAll(resp.Body)
+
+// 	return respBody, err
+// }
 
 // work around for making https connection to IP with non trusted CA
 func getTLSClient() http.Client {

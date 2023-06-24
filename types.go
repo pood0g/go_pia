@@ -68,6 +68,12 @@ type PIAConfig struct {
 	DNSServers []string `json:"dns_servers"`
 }
 
+type PIAPayloadAndSignature struct {
+	Status string	`json:"status"`
+	Payload string	`json:"payload"`
+	Signature string	`json:"signature"`
+}
+
 // Wireguard Keypair struct
 type WGKeyPair struct {
 	pubKey string

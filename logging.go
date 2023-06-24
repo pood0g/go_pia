@@ -9,3 +9,9 @@ func logFatal(err error) {
 		log.Fatalf("%s", err)
 	}
 }
+
+// func logWarning(err error) {
+// 	if err != nil {
+// 		log.Printf("%s", err)
+// 	}
+// }

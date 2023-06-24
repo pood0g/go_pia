@@ -7,15 +7,9 @@ import (
 	"os"
 	"os/user"
 	"runtime"
-	"sync"
 )
 
-var waitGroup sync.WaitGroup
-
 func main() {
-
-	// future use for running shell commands
-	waitGroup.Add(1)
 
 	var choice uint8
 	username := os.Getenv("PIA_USER")
@@ -66,9 +60,10 @@ func main() {
 	log.Printf("Server status %s", piaConfig.Status)
 
 	if piaConfig.Status == "OK" {
-		log.Printf("Got server public key.\n\n")
+		log.Printf("Got server config successfully.")
 		configFile := genWgConfigFile(piaConfig, keyPair)
 		writeFile("/etc/wireguard/pia.conf", configFile)
+		log.Printf("Bringing up wg interface")
 		err := runShellCommand("wg-quick", []string{"up", "pia"})
 		if err != nil {
 			logFatal(err)
@@ -77,6 +72,16 @@ func main() {
 	} else {
 		log.Fatalln("failed")
 	}
+	
 
-	waitGroup.Wait()
+	getPFSignature(
+		piaConfig.ServerVIP,
+		"19999",
+		auth.Token,
+	)
+
+	log.Printf("Bringing down wg interface")
+	err = runShellCommand("wg-quick", []string{"down", "pia"})
+	logFatal(err)
+
 }

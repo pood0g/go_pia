@@ -67,7 +67,7 @@ func genWgConfigFile(conf PIAConfig, keys WGKeyPair) []byte {
 	peer := WgConfigPeer{
 		PersistenceKeepalive: 25,
 		PublicKey:            conf.ServerKey,
-		AllowedIPs:           "0.0.0.0/0, ::/0",
+		AllowedIPs:           "0.0.0.0/0",
 		Endpoint:             fmt.Sprintf("%s:%d", conf.ServerIP, conf.ServerPort),
 	}
 
