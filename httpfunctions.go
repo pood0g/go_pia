@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "fmt"
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
@@ -9,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "os/exec"
 )
 
 func makeGETRequest(url string) ([]byte, error) {
@@ -45,14 +43,6 @@ func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 
 	return respBody, err
 }
-
-// func runShellCommand(command string, args []string) {
-// 	defer waitGroup.Done()
-// 	cmd, err:= exec.Command(command, args...).Output()
-// 	handleFatal(err)
-
-// 	fmt.Printf("%s", cmd)
-// }
 
 func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
