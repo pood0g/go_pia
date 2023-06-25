@@ -25,3 +25,4 @@ const PIA_CERT string = "./ca.rsa.4096.crt"
 
 // Config file
 const CONFIG_FILE string = "config.json"
+

@@ -29,7 +29,7 @@ func main() {
 	}
 
 	serverData, err := getPIAServerData()
-	logFatal(err)
+	logFatal(err, false)
 	keyPair := genKeyPair()
 
 	fmt.Printf("Available regions:\n\n")
@@ -46,7 +46,7 @@ func main() {
 
 	log.Printf("Connecting to %s - %s\n", serverData.Regions[choice].Name, ip)
 	auth, err := getToken(username, password)
-	logFatal(err)
+	logFatal(err, false)
 	log.Printf("Got auth token.\n")
 
 	piaConfig, err := getPIAConfig(
@@ -55,7 +55,7 @@ func main() {
 		auth.Token,
 		keyPair.pubKey,
 	)
-	logFatal(err)
+	logFatal(err, false)
 
 	log.Printf("Server status %s", piaConfig.Status)
 
@@ -66,22 +66,30 @@ func main() {
 		log.Printf("Bringing up wg interface")
 		err := runShellCommand("wg-quick", []string{"up", "pia"})
 		if err != nil {
-			logFatal(err)
+			logFatal(err, false)
 		}
 		log.Printf("WireGuard connection established")
 	} else {
 		log.Fatalln("failed")
 	}
-	
 
-	getPFSignature(
+	payloadAndSignature, payload, err := getPFSignature(
 		piaConfig.ServerVIP,
 		"19999",
 		auth.Token,
 	)
+	if err != nil {
+		log.Printf("Port Forwarding failed - %s", err)
+	}
 
-	log.Printf("Bringing down wg interface")
-	err = runShellCommand("wg-quick", []string{"down", "pia"})
-	logFatal(err)
+	log.Printf("Got Signature and Payload, requesting port bind for port %d", payload.Port)
 
+	pfStatus, err := requestBindPort(
+		piaConfig.ServerVIP,
+		"19999",
+		payloadAndSignature,
+	)
+	logFatal(err, true)
+
+	fmt.Printf("%s", pfStatus)
 }

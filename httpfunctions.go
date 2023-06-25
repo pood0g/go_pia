@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -50,7 +49,6 @@ func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%s", req.Header)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -97,7 +95,7 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	rootCAs := x509.NewCertPool()
 
 	caCert, err := os.ReadFile(PIA_CERT)
-	logFatal(err)
+	logFatal(err, false)
 	if ok := rootCAs.AppendCertsFromPEM(caCert); !ok {
 		log.Fatalln("Certificate not added.")
 	}
@@ -111,7 +109,7 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 		log.Println("Unable to verify cert")
 		return err
 	}
-	log.Println("[+] Server certificate validated.")
+	log.Println("Server certificate validated.")
 
 	return nil
 }

@@ -69,9 +69,20 @@ type PIAConfig struct {
 }
 
 type PIAPayloadAndSignature struct {
+	Status    string `json:"status"`
+	Payload   string `json:"payload"`
+	Signature string `json:"signature"`
+}
+
+type PIAPFPayload struct {
+	Token     string `json:"token"`
+	Port      uint16 `json:"port"`
+	ExpiresAt string `json:"expires_at"`
+}
+
+type PIAPFStatus struct {
 	Status string	`json:"status"`
-	Payload string	`json:"payload"`
-	Signature string	`json:"signature"`
+	Message string	`json:"message"`
 }
 
 // Wireguard Keypair struct

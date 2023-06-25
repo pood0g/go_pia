@@ -27,7 +27,7 @@ func conv(key *[32]byte) *[]byte {
 func genPrivKey() *[32]byte {
 	key := make([]byte, 32)
 	_, err := rand.Read(key)
-	logFatal(err)
+	logFatal(err, false)
 	key[0] &= 248
 	key[31] &= 127
 	key[31] |= 64

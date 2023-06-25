@@ -4,8 +4,12 @@ import (
 	"log"
 )
 
-func logFatal(err error) {
+func logFatal(err error, wgUp bool) {
 	if err != nil {
+		if wgUp{
+			log.Printf("Bringing down wg interface")
+			err = runShellCommand("wg-quick", []string{"down", "pia"})
+		}
 		log.Fatalf("%s", err)
 	}
 }

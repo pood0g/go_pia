@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -58,10 +59,11 @@ func getPIAConfig(serverIP, serverPort, token, pubKey string) (PIAConfig, error)
 	return piaConfig, err
 }
 
-func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature, error) {
-	
+func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature, PIAPFPayload, error) {
+
 	var payloadAndSignature PIAPayloadAndSignature
-	
+	var payload PIAPFPayload
+
 	client := getTLSClient()
 	reqURL := fmt.Sprintf("https://%s:%s/getSignature?token=%s",
 		serverIP,
@@ -70,6 +72,22 @@ func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature,
 	)
 	resp, err := makeGETRequestWithCA(reqURL, client)
 	json.Unmarshal(resp, &payloadAndSignature)
-	
-	return payloadAndSignature, err
+	payload_json, _ := b64.StdEncoding.DecodeString(payloadAndSignature.Payload)
+	json.Unmarshal(payload_json, &payload)
+
+	return payloadAndSignature, payload, err
+}
+
+func requestBindPort(serverIP, serverPort string, payloadAndSignature PIAPayloadAndSignature) ([]byte, error) {
+
+	client := getTLSClient()
+	reqURL := fmt.Sprintf("https://%s:%s/bindPort?payload=%s&signature=%s",
+		serverIP,
+		serverPort,
+		url.QueryEscape(payloadAndSignature.Payload),
+		url.QueryEscape(payloadAndSignature.Signature),
+	)
+	resp, err := makeGETRequestWithCA(reqURL, client)
+
+	return resp, err
 }
