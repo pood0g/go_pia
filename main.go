@@ -7,7 +7,12 @@ import (
 	"os"
 	"os/user"
 	"runtime"
+	"sync"
+	"time"
 )
+
+var TLSClient = getTLSClient()
+var waitGroup sync.WaitGroup
 
 func main() {
 
@@ -15,7 +20,7 @@ func main() {
 	username := os.Getenv("PIA_USER")
 	password := os.Getenv("PIA_PASS")
 
-	// Check environment variables are set
+	// begin runtime checks
 	if len(username) == 0 || len(password) == 0 {
 		log.Fatalf("%s PIA_USER or PIA_PASS environment variables not set!", logError)
 	}
@@ -27,11 +32,16 @@ func main() {
 	if cur_user, _ := user.Current(); cur_user.Uid != "0" {
 		log.Fatalf("%s Please run this program as root", logError)
 	}
+	// end runtime checks
 
+	logInfo("Requesting Server and Region Data")
 	serverData, err := getPIAServerData()
 	logFatal(err, false)
+
+	logInfo("Creating WireGuard Key Pair")
 	keyPair := genKeyPair()
 
+	// Ask user to select region from list
 	fmt.Printf("Available regions:\n\n")
 	for i, p := range serverData.Regions {
 		fmt.Printf("\t %s[%d]%s %s\n", Green, i, Reset, p.Name)
@@ -43,7 +53,9 @@ func main() {
 
 	rand_server := rand.Intn(len(serverData.Regions[choice].Servers.Wg))
 	ip := serverData.Regions[choice].Servers.Wg[rand_server].IP
+	// End ask user for region
 
+	// Begin connect to PIA
 	log.Printf("Connecting to %s - %s\n", serverData.Regions[choice].Name, ip)
 	auth, err := getToken(username, password)
 	logFatal(err, false)
@@ -84,12 +96,27 @@ func main() {
 
 	log.Printf("Got Signature and Payload, requesting port bind for port %d", payload.Port)
 
-	pfStatus, err := requestBindPort(
-		piaConfig.ServerVIP,
-		"19999",
-		payloadAndSignature,
-	)
-	logFatal(err, true)
+	waitGroup.Add(1)
 
-	fmt.Printf("%s", pfStatus)
+	// begin forever go routine for port forwarding anonymous function
+	go func() {
+		defer waitGroup.Done()
+		for {
+			pfStatus, err := requestBindPort(
+				piaConfig.ServerVIP,
+				"19999",
+				payloadAndSignature,
+			)
+			logFatal(err, true)
+			if pfStatus.Status == "OK" {
+				log.Printf("Port Forwarding: %s", pfStatus.Message)
+			}
+			time.Sleep(time.Minute * 15)
+		}
+	}()
+
+	// Start transmission-daemon
+
+	waitGroup.Wait()
+
 }

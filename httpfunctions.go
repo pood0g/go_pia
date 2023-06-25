@@ -44,12 +44,12 @@ func makePOSTRequest(url, contentType string, body []byte) ([]byte, error) {
 	return respBody, err
 }
 
-func makeGETRequestWithCA(url string, client http.Client) ([]byte, error) {
+func makeGETRequestWithCA(url string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Do(req)
+	resp, err := TLSClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

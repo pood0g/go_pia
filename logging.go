@@ -7,8 +7,8 @@ import (
 func logFatal(err error, wgUp bool) {
 	if err != nil {
 		if wgUp{
-			log.Printf("Bringing down wg interface")
-			err = runShellCommand("wg-quick", []string{"down", "pia"})
+			err := terminateProgram()
+			log.Printf("%s", err)
 		}
 		log.Fatalf("%s", err)
 	}
@@ -19,3 +19,13 @@ func logFatal(err error, wgUp bool) {
 // 		log.Printf("%s", err)
 // 	}
 // }
+
+func logInfo(info string) {
+	log.Printf("%s", info)
+}
+
+func terminateProgram() error {
+	log.Printf("Bringing down wg interface")
+	err := runShellCommand("wg-quick", []string{"down", "pia"})
+	return err
+}
