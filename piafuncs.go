@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
+	"time"
 )
 
 // function to get and parse region JSON data
 func getPIAServerData() (RegionData, error) {
 	var regionData RegionData
-	var pfRegions []Regions
+	var pfRegions []Region
 
 	regionDataJson, err := makeGETRequest(REGION_URL)
 	// Remove the junk at the end of the response body.
@@ -30,6 +31,21 @@ func getPIAServerData() (RegionData, error) {
 		return regionData.Regions[i].Name < regionData.Regions[j].Name
 	})
 	return regionData, err
+}
+
+func pickRegion(data *RegionData) Region {
+
+	var choice uint8
+
+	fmt.Printf("Available regions:\n\n")
+	for i, p := range data.Regions {
+		fmt.Printf("\t %s[%d]\t%s %s\n", GREEN, i, RESET, p.Name)
+
+	}
+
+	fmt.Printf("\nPick a Region: ")
+	fmt.Scanln(&choice)
+	return data.Regions[choice]
 }
 
 // function to get the auth token from PIA using username and password POST parameters
@@ -99,4 +115,20 @@ func requestBindPort(serverIP, serverPort string, pldSig PIAPayloadAndSignature)
 	json.Unmarshal(resp, &pfStatus)
 
 	return pfStatus, err
+}
+
+func refreshPortForward (paySig PIAPayloadAndSignature, config *PIAConfig) {
+	defer waitGroup.Done()
+	for {
+		pfStatus, err := requestBindPort(
+			config.ServerVIP,
+			"19999",
+			paySig,
+		)
+		logFatal(err, true)
+		if pfStatus.Status == "OK" {
+			logInfo("Port Forwarding: " + pfStatus.Message)
+		}
+		time.Sleep(time.Minute * 14 + time.Second * 50)
+	}
 }

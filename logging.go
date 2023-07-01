@@ -14,10 +14,8 @@ func logFatal(err error, wgUp bool) {
 	}
 }
 
-func logWarn(err error) {
-	if err != nil {
-		log.Printf("%s %s",LOGWARN, err)
-	}
+func logWarn(warning string) {
+	log.Printf("%s %s",LOGWARN, warning)
 }
 
 func logInfo(info string) {

@@ -21,6 +21,6 @@ const CT_FORM string = "application/x-www-form-urlencoded"
 const PIA_CERT string = "./ca.rsa.4096.crt"
 
 // Config file
-const CONFIG_FILE string = "go_pia_config.json"
+const CONFIG_FILE string = "./go_pia_config.json"
 const T_CONF_FILE string = "/config/settings.json"
 const T_CONF_DIR string = "/config"

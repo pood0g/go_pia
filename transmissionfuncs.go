@@ -24,6 +24,16 @@ func startTransmission() error {
 	return err
 }
 
+func startStunnel() error {
+	err := runShellCommand("su",
+		[]string{
+			"stunnel",
+			"-s", "/bin/ash",
+			"-c", "stunnel",
+		})
+	return err
+}
+
 func writeTransmissionSettings(settings TransmissionSettings) error {
 	config, err := json.Marshal(settings)
 	if err != nil {

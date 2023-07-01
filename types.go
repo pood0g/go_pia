@@ -1,9 +1,18 @@
 package main
 
+// go_pia config variables
+type goPiaConfig struct {
+	PiaUser   string `json:"pia_user,omitempty"`
+	PiaPass   string `json:"pia_pass,omitempty"`
+	PiaRegion string `json:"pia_region,omitempty"`
+	TransUser string `json:"trans_user,omitempty"`
+	TransPass string `json:"trans_pass,omitempty"`
+}
+
 // Region data: root struct
 type RegionData struct {
-	Groups  Groups    `json:"groups,omitempty"`
-	Regions []Regions `json:"regions,omitempty"`
+	Groups  Groups   `json:"groups,omitempty"`
+	Regions []Region `json:"regions,omitempty"`
 }
 
 // Region data: Group struct
@@ -39,8 +48,8 @@ type Servers struct {
 	Wg      []ServerData `json:"wg,omitempty"`
 }
 
-// Region data Regions struct
-type Regions struct {
+// Region data Region struct
+type Region struct {
 	ID          string  `json:"id,omitempty"`
 	Name        string  `json:"name,omitempty"`
 	Country     string  `json:"country,omitempty"`

@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io"
-	"log"
 	"net/http"
 	"os"
 )
@@ -97,19 +96,19 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	caCert, err := os.ReadFile(PIA_CERT)
 	logFatal(err, false)
 	if ok := rootCAs.AppendCertsFromPEM(caCert); !ok {
-		log.Fatalln("Certificate not added.")
+		logWarn("Certificate not added.")
 	}
-	log.Printf("Certificate %s parsed successfully\n", PIA_CERT)
+	logInfo("Certificate " + PIA_CERT + " parsed successfully\n")
 
 	hostCert, _ := x509.ParseCertificate(rawCerts[0])
 	opts := x509.VerifyOptions{
 		Roots: rootCAs,
 	}
 	if _, err := hostCert.Verify(opts); err != nil {
-		log.Println("Unable to verify cert")
+		logWarn("Unable to verify cert")
 		return err
 	}
-	log.Println("Server certificate validated.")
+	logInfo("Server certificate validated.")
 
 	return nil
 }

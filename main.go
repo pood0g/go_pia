@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -8,7 +9,8 @@ import (
 	"os/user"
 	"runtime"
 	"sync"
-	"time"
+
+	
 )
 
 var TLSClient = getTLSClient()
@@ -16,15 +18,9 @@ var waitGroup sync.WaitGroup
 
 func main() {
 
-	var choice uint8
-	username := os.Getenv("PIA_USER")
-	password := os.Getenv("PIA_PASS")
+	var config goPiaConfig
 
 	// begin runtime checks
-	if len(username) == 0 || len(password) == 0 {
-		log.Fatalf("%s PIA_USER or PIA_PASS environment variables not set!", LOGERROR)
-	}
-
 	if runtime.GOOS != "linux" {
 		log.Fatalf("%s This app currently only supports linux OS", LOGERROR)
 	}
@@ -34,30 +30,43 @@ func main() {
 	}
 	// end runtime checks
 
+	// refresh PIA server data
 	logInfo("Requesting Server and Region Data")
 	serverData, err := getPIAServerData()
 	logFatal(err, false)
 
-	// Ask user to select region from list
-	fmt.Printf("Available regions:\n\n")
-	for i, p := range serverData.Regions {
-		fmt.Printf("\t %s[%d]\t%s %s\n", GREEN, i, RESET, p.Name)
-
+	// Check configuration file exists and load, else run configuration tool
+	configFile, err := os.ReadFile(CONFIG_FILE)
+	if err != nil {
+		logInfo(CONFIG_FILE + " not found, running initial configuration.")
+		makeConfiguration(&config, &serverData)
+		os.Exit(0)
+	} else {
+		json.Unmarshal(configFile, &config)
 	}
 
-	fmt.Printf("\nPick a Region: ")
-	fmt.Scanln(&choice)
+	// Ask user to select region from list
+	region := func() Region {
+		var regRet Region
+		for _, reg := range serverData.Regions {
+			if config.PiaRegion == reg.ID {
+				regRet = reg
+				break
+			}
+		}
+		return regRet
+	}()
 
-	rand_server := rand.Intn(len(serverData.Regions[choice].Servers.Wg))
-	ip := serverData.Regions[choice].Servers.Wg[rand_server].IP
+	rand_server := rand.Intn(len(region.Servers.Wg))
+	ip := region.Servers.Wg[rand_server].IP
 	// End ask user for region
 
 	logInfo("Creating WireGuard Key Pair")
 	keyPair := genKeyPair()
 
 	// Begin connect to PIA
-	log.Printf("Connecting to %s - %s\n", serverData.Regions[choice].Name, ip)
-	auth, err := getToken(username, password)
+	logInfo(fmt.Sprintf("Connecting to %s - %s\n", region.Name, ip))
+	auth, err := getToken(config.PiaUser, config.PiaPass)
 	logFatal(err, false)
 	log.Printf("Got auth token.\n")
 
@@ -69,18 +78,18 @@ func main() {
 	)
 	logFatal(err, false)
 
-	log.Printf("Server status %s", piaConfig.Status)
+	logInfo(fmt.Sprintf("Server status %s", piaConfig.Status))
 
 	if piaConfig.Status == "OK" {
-		log.Printf("Got server config successfully.")
+		logInfo("Got server config successfully.")
 		configFile := genWgConfigFile(piaConfig, keyPair)
 		writeFile("/etc/wireguard/pia.conf", configFile)
-		log.Printf("Bringing up wg interface")
+		logInfo("Bringing up wg interface")
 		err := runShellCommand("wg-quick", []string{"up", "pia"})
 		if err != nil {
 			logFatal(err, false)
 		}
-		log.Printf("WireGuard connection established")
+		logInfo("WireGuard connection established")
 	} else {
 		log.Fatalln("failed")
 	}
@@ -94,37 +103,27 @@ func main() {
 		log.Printf("Port Forwarding failed - %s", err)
 	}
 
-	log.Printf("Got Signature and Payload, requesting port bind for port %d", payload.Port)
+	logInfo(fmt.Sprintf("Got Signature and Payload, requesting port bind for port %d", payload.Port))
 
 	waitGroup.Add(1)
 
 	// begin forever go routine for port forwarding anonymous function
-	go func() {
-		defer waitGroup.Done()
-		for {
-			pfStatus, err := requestBindPort(
-				piaConfig.ServerVIP,
-				"19999",
-				payloadAndSignature,
-			)
-			logFatal(err, true)
-			if pfStatus.Status == "OK" {
-				log.Printf("Port Forwarding: %s", pfStatus.Message)
-			}
-			time.Sleep(time.Minute * 15)
-		}
-	}()
+	go refreshPortForward(payloadAndSignature, &piaConfig)
 
-	// Start transmission-daemon
-	logInfo("Starting transmission-daemon")
+	// Start transmission-daemon + stunnel TLS proxy
 	tConfig := getTransmissionSettings()
 	tConfig.BindAddressIpv4 = piaConfig.PeerIP
 	tConfig.PeerPort = payload.Port
 	err = writeTransmissionSettings(tConfig)
 	logFatal(err, true)
+	logInfo("Starting stunnel")
+	err = startStunnel()
+	logFatal(err, true)
+	logInfo("Starting transmission-daemon")
 	err = startTransmission()
 	logFatal(err, true)
 
 	waitGroup.Wait()
 
 }
+

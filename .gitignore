@@ -5,4 +5,4 @@ test.json
 creds.env
 creds.sh
 cacert.crt
-config.json
+go_pia_config.json
