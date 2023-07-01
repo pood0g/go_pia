@@ -68,7 +68,7 @@ func main() {
 	logInfo(fmt.Sprintf("Connecting to %s - %s\n", region.Name, ip))
 	auth, err := getToken(config.PiaUser, config.PiaPass)
 	logFatal(err, false)
-	log.Printf("Got auth token.\n")
+	logInfo("Got auth token.")
 
 	piaConfig, err := getPIAConfig(
 		ip,
