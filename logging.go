@@ -14,14 +14,14 @@ func logFatal(err error, wgUp bool) {
 	}
 }
 
-// func logWarning(err error) {
-// 	if err != nil {
-// 		log.Printf("%s", err)
-// 	}
-// }
+func logWarn(err error) {
+	if err != nil {
+		log.Printf("%s %s",LOGWARN, err)
+	}
+}
 
 func logInfo(info string) {
-	log.Printf("%s", info)
+	log.Printf("%s %s", LOGINFO, info)
 }
 
 func terminateProgram() error {

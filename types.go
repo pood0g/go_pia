@@ -81,8 +81,8 @@ type PIAPFPayload struct {
 }
 
 type PIAPFStatus struct {
-	Status string	`json:"status"`
-	Message string	`json:"message"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 // Wireguard Keypair struct
@@ -112,4 +112,84 @@ type WgConfigInterface struct {
 
 type WgConfig interface {
 	getText() string
+}
+
+type TransmissionSettings struct {
+	AltSpeedDown                     int    `json:"alt-speed-down,omitempty"`
+	AltSpeedTimeBegin                int    `json:"alt-speed-time-begin,omitempty"`
+	AltSpeedTimeDay                  int    `json:"alt-speed-time-day,omitempty"`
+	AltSpeedTimeEnabled              bool   `json:"alt-speed-time-enabled,omitempty"`
+	AltSpeedTimeEnd                  int    `json:"alt-speed-time-end,omitempty"`
+	AltSpeedUp                       int    `json:"alt-speed-up,omitempty"`
+	AnnounceIP                       string `json:"announce-ip,omitempty"`
+	AnnounceIPEnabled                bool   `json:"announce-ip-enabled,omitempty"`
+	AntiBruteForceEnabled            bool   `json:"anti-brute-force-enabled,omitempty"`
+	AntiBruteForceThreshold          int    `json:"anti-brute-force-threshold,omitempty"`
+	BindAddressIpv4                  string `json:"bind-address-ipv4,omitempty"`
+	BindAddressIpv6                  string `json:"bind-address-ipv6,omitempty"`
+	BlocklistEnabled                 bool   `json:"blocklist-enabled,omitempty"`
+	BlocklistURL                     string `json:"blocklist-url,omitempty"`
+	CacheSizeMb                      int    `json:"cache-size-mb,omitempty"`
+	DefaultTrackers                  string `json:"default-trackers,omitempty"`
+	DhtEnabled                       bool   `json:"dht-enabled,omitempty"`
+	DownloadDir                      string `json:"download-dir,omitempty"`
+	DownloadQueueEnabled             bool   `json:"download-queue-enabled,omitempty"`
+	DownloadQueueSize                int    `json:"download-queue-size,omitempty"`
+	Encryption                       int    `json:"encryption,omitempty"`
+	IdleSeedingLimit                 int    `json:"idle-seeding-limit,omitempty"`
+	IdleSeedingLimitEnabled          bool   `json:"idle-seeding-limit-enabled,omitempty"`
+	IncompleteDir                    string `json:"incomplete-dir,omitempty"`
+	IncompleteDirEnabled             bool   `json:"incomplete-dir-enabled,omitempty"`
+	LpdEnabled                       bool   `json:"lpd-enabled,omitempty"`
+	MessageLevel                     int    `json:"message-level,omitempty"`
+	PeerCongestionAlgorithm          string `json:"peer-congestion-algorithm,omitempty"`
+	PeerIDTTLHours                   int    `json:"peer-id-ttl-hours,omitempty"`
+	PeerLimitGlobal                  int    `json:"peer-limit-global,omitempty"`
+	PeerLimitPerTorrent              int    `json:"peer-limit-per-torrent,omitempty"`
+	PeerPort                         uint16 `json:"peer-port,omitempty"`
+	PeerPortRandomHigh               int    `json:"peer-port-random-high,omitempty"`
+	PeerPortRandomLow                int    `json:"peer-port-random-low,omitempty"`
+	PeerPortRandomOnStart            bool   `json:"peer-port-random-on-start,omitempty"`
+	PeerSocketTos                    string `json:"peer-socket-tos,omitempty"`
+	PexEnabled                       bool   `json:"pex-enabled,omitempty"`
+	PortForwardingEnabled            bool   `json:"port-forwarding-enabled,omitempty"`
+	Preallocation                    int    `json:"preallocation,omitempty"`
+	PrefetchEnabled                  bool   `json:"prefetch-enabled,omitempty"`
+	QueueStalledEnabled              bool   `json:"queue-stalled-enabled,omitempty"`
+	QueueStalledMinutes              int    `json:"queue-stalled-minutes,omitempty"`
+	RatioLimit                       int    `json:"ratio-limit,omitempty"`
+	RatioLimitEnabled                bool   `json:"ratio-limit-enabled,omitempty"`
+	RenamePartialFiles               bool   `json:"rename-partial-files,omitempty"`
+	RPCAuthenticationRequired        bool   `json:"rpc-authentication-required,omitempty"`
+	RPCBindAddress                   string `json:"rpc-bind-address,omitempty"`
+	RPCEnabled                       bool   `json:"rpc-enabled,omitempty"`
+	RPCHostWhitelist                 string `json:"rpc-host-whitelist,omitempty"`
+	RPCHostWhitelistEnabled          bool   `json:"rpc-host-whitelist-enabled,omitempty"`
+	RPCPassword                      string `json:"rpc-password,omitempty"`
+	RPCPort                          int    `json:"rpc-port,omitempty"`
+	RPCSocketMode                    string `json:"rpc-socket-mode,omitempty"`
+	RPCURL                           string `json:"rpc-url,omitempty"`
+	RPCUsername                      string `json:"rpc-username,omitempty"`
+	RPCWhitelist                     string `json:"rpc-whitelist,omitempty"`
+	RPCWhitelistEnabled              bool   `json:"rpc-whitelist-enabled,omitempty"`
+	ScrapePausedTorrentsEnabled      bool   `json:"scrape-paused-torrents-enabled,omitempty"`
+	ScriptTorrentAddedEnabled        bool   `json:"script-torrent-added-enabled,omitempty"`
+	ScriptTorrentAddedFilename       string `json:"script-torrent-added-filename,omitempty"`
+	ScriptTorrentDoneEnabled         bool   `json:"script-torrent-done-enabled,omitempty"`
+	ScriptTorrentDoneFilename        string `json:"script-torrent-done-filename,omitempty"`
+	ScriptTorrentDoneSeedingEnabled  bool   `json:"script-torrent-done-seeding-enabled,omitempty"`
+	ScriptTorrentDoneSeedingFilename string `json:"script-torrent-done-seeding-filename,omitempty"`
+	SeedQueueEnabled                 bool   `json:"seed-queue-enabled,omitempty"`
+	SeedQueueSize                    int    `json:"seed-queue-size,omitempty"`
+	SpeedLimitDown                   int    `json:"speed-limit-down,omitempty"`
+	SpeedLimitDownEnabled            bool   `json:"speed-limit-down-enabled,omitempty"`
+	SpeedLimitUp                     int    `json:"speed-limit-up,omitempty"`
+	SpeedLimitUpEnabled              bool   `json:"speed-limit-up-enabled,omitempty"`
+	StartAddedTorrents               bool   `json:"start-added-torrents,omitempty"`
+	TCPEnabled                       bool   `json:"tcp-enabled,omitempty"`
+	TorrentAddedVerifyMode           string `json:"torrent-added-verify-mode,omitempty"`
+	TrashOriginalTorrentFiles        bool   `json:"trash-original-torrent-files,omitempty"`
+	Umask                            string `json:"umask,omitempty"`
+	UploadSlotsPerTorrent            int    `json:"upload-slots-per-torrent,omitempty"`
+	UtpEnabled                       bool   `json:"utp-enabled,omitempty"`
 }

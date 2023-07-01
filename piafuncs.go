@@ -11,11 +11,20 @@ import (
 
 // function to get and parse region JSON data
 func getPIAServerData() (RegionData, error) {
+	var regionData RegionData
+	var pfRegions []Regions
+
 	regionDataJson, err := makeGETRequest(REGION_URL)
 	// Remove the junk at the end of the response body.
 	regionDataJson = bytes.Split(regionDataJson, []byte("\n"))[0]
-	var regionData RegionData
 	json.Unmarshal(regionDataJson, &regionData)
+	// Remove non port forwarding regions
+	for _, region := range regionData.Regions {
+		if region.PortForward {
+			pfRegions = append(pfRegions, region)
+		}
+	}
+	regionData.Regions = pfRegions
 	// Sort the regions by name
 	sort.Slice(regionData.Regions[:], func(i, j int) bool {
 		return regionData.Regions[i].Name < regionData.Regions[j].Name

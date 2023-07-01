@@ -3,16 +3,13 @@ package main
 // Terminal colours
 
 const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
-	Blue   = "\033[34m"
-	Purple = "\033[35m"
-	Cyan   = "\033[36m"
-	Gray   = "\033[37m"
-	White  = "\033[97m"
-	logError = Red + "ERROR:" + Reset
+	RESET    = "\033[0m"
+	RED      = "\033[31m"
+	GREEN    = "\033[32m"
+	YELLOW   = "\033[33m"
+	LOGERROR = RED + "ERROR:" + RESET
+	LOGWARN  = YELLOW + "WARN:" + RESET
+	LOGINFO  = GREEN + "INFO:" + RESET
 )
 
 // HTTP String constants used within the application.
@@ -24,5 +21,6 @@ const CT_FORM string = "application/x-www-form-urlencoded"
 const PIA_CERT string = "./ca.rsa.4096.crt"
 
 // Config file
-const CONFIG_FILE string = "config.json"
-
+const CONFIG_FILE string = "go_pia_config.json"
+const T_CONF_FILE string = "/config/settings.json"
+const T_CONF_DIR string = "/config"

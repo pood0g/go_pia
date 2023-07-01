@@ -22,15 +22,15 @@ func main() {
 
 	// begin runtime checks
 	if len(username) == 0 || len(password) == 0 {
-		log.Fatalf("%s PIA_USER or PIA_PASS environment variables not set!", logError)
+		log.Fatalf("%s PIA_USER or PIA_PASS environment variables not set!", LOGERROR)
 	}
 
 	if runtime.GOOS != "linux" {
-		log.Fatalf("%s This app currently only supports linux OS", logError)
+		log.Fatalf("%s This app currently only supports linux OS", LOGERROR)
 	}
 
 	if cur_user, _ := user.Current(); cur_user.Uid != "0" {
-		log.Fatalf("%s Please run this program as root", logError)
+		log.Fatalf("%s Please run this program as root", LOGERROR)
 	}
 	// end runtime checks
 
@@ -38,13 +38,10 @@ func main() {
 	serverData, err := getPIAServerData()
 	logFatal(err, false)
 
-	logInfo("Creating WireGuard Key Pair")
-	keyPair := genKeyPair()
-
 	// Ask user to select region from list
 	fmt.Printf("Available regions:\n\n")
 	for i, p := range serverData.Regions {
-		fmt.Printf("\t %s[%d]%s %s\n", Green, i, Reset, p.Name)
+		fmt.Printf("\t %s[%d]\t%s %s\n", GREEN, i, RESET, p.Name)
 
 	}
 
@@ -54,6 +51,9 @@ func main() {
 	rand_server := rand.Intn(len(serverData.Regions[choice].Servers.Wg))
 	ip := serverData.Regions[choice].Servers.Wg[rand_server].IP
 	// End ask user for region
+
+	logInfo("Creating WireGuard Key Pair")
+	keyPair := genKeyPair()
 
 	// Begin connect to PIA
 	log.Printf("Connecting to %s - %s\n", serverData.Regions[choice].Name, ip)
@@ -116,6 +116,14 @@ func main() {
 	}()
 
 	// Start transmission-daemon
+	logInfo("Starting transmission-daemon")
+	tConfig := getTransmissionSettings()
+	tConfig.BindAddressIpv4 = piaConfig.PeerIP
+	tConfig.PeerPort = payload.Port
+	err = writeTransmissionSettings(tConfig)
+	logFatal(err, true)
+	err = startTransmission()
+	logFatal(err, true)
 
 	waitGroup.Wait()
 
