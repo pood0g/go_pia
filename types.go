@@ -7,6 +7,8 @@ type goPiaConfig struct {
 	PiaRegion string `json:"pia_region,omitempty"`
 	TransUser string `json:"trans_user,omitempty"`
 	TransPass string `json:"trans_pass,omitempty"`
+	LinuxUID  string `json:"linux_uid,omitempty"`
+	LinuxGID  string `json:"linux_gid,omitempty"`
 }
 
 // Region data: root struct

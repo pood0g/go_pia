@@ -40,6 +40,9 @@ func main() {
 	if err != nil {
 		logInfo(CONFIG_FILE + " not found, running initial configuration.")
 		makeConfiguration(&config, &serverData)
+		modifyGID(&config)
+		modifyUID(&config)
+		chownFiles()
 		os.Exit(0)
 	} else {
 		json.Unmarshal(configFile, &config)
@@ -110,12 +113,16 @@ func main() {
 	// begin forever go routine for port forwarding anonymous function
 	go refreshPortForward(payloadAndSignature, &piaConfig)
 
-	// Start transmission-daemon + stunnel TLS proxy
+	// update settings.json
 	tConfig := getTransmissionSettings()
 	tConfig.BindAddressIpv4 = piaConfig.PeerIP
 	tConfig.PeerPort = payload.Port
+	tConfig.RPCUsername = config.TransUser
+	tConfig.RPCPassword = config.TransPass
 	err = writeTransmissionSettings(tConfig)
 	logFatal(err, true)
+	
+	// Start transmission-daemon + stunnel TLS proxy
 	logInfo("Starting stunnel")
 	err = startStunnel()
 	logFatal(err, true)

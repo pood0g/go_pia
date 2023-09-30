@@ -14,6 +14,34 @@ func getTransmissionSettings() TransmissionSettings {
 	return config
 }
 
+func modifyUID(config *goPiaConfig) error {
+	err := runShellCommand("lusermod",
+		[]string{
+			"-u", config.LinuxUID,
+			"transmission",
+		})
+	return err
+}
+
+func modifyGID(config *goPiaConfig) error {
+	err := runShellCommand("lgroupmod",
+		[]string{
+			"-g", config.LinuxUID,
+			"transmission",
+		})
+	return err
+}
+
+func chownFiles() error {
+	err := runShellCommand("chown",
+		[]string{
+			"-R",
+			"transmission:transmission",
+			"/config", "/downloads",
+		})
+	return err
+}
+
 func startTransmission() error {
 	err := runShellCommand("su",
 		[]string{

@@ -34,6 +34,12 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 		logFatal(err, false)
 	}
 	fmt.Println()
+
+	fmt.Printf("Enter linux UID: ")
+	fmt.Scanln(&config.LinuxUID)
+	fmt.Printf("Enter linux GID: ")
+	fmt.Scanln(&config.LinuxGID)
+
 	config.TransPass = string(tPassBytes)
 
 	config.PiaRegion = pickRegion(serverData).ID
