@@ -25,5 +25,10 @@ func logInfo(info string) {
 func terminateProgram() error {
 	log.Printf("Bringing down wg interface")
 	err := runShellCommand("wg-quick", []string{"down", "pia"})
+	if err != nil {
+		return err
+	}
+	log.Printf("Terminating Transmission Daemon")
+	err = runShellCommand("pkill", []string{"-9", "transmission-daemon"})
 	return err
 }

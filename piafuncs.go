@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"sort"
 	"time"
+	"math/rand"
+	"log"
 )
 
 // function to get and parse region JSON data
@@ -131,4 +133,45 @@ func refreshPortForward (paySig PIAPayloadAndSignature, config *PIAConfig) {
 		}
 		time.Sleep(time.Minute * 14 + time.Second * 50)
 	}
+}
+
+func connectToPIA (config *goPiaConfig, region *Region, serverData *RegionData) (PIAConfig, PIAToken) {
+	
+	rand_server := rand.Intn(len(region.Servers.Wg))
+	ip := region.Servers.Wg[rand_server].IP
+	
+	logInfo("Creating WireGuard Key Pair")
+	keyPair := genKeyPair()
+
+	// Begin connect to PIA
+	logInfo(fmt.Sprintf("Connecting to %s - %s\n", region.Name, ip))
+	auth, err := getToken(config.PiaUser, config.PiaPass)
+	logFatal(err, false)
+	logInfo("Got auth token.")
+
+	piaConfig, err := getPIAConfig(
+		ip,
+		fmt.Sprintf("%d", serverData.Groups.Wg[0].Ports[0]),
+		auth.Token,
+		keyPair.pubKey,
+	)
+	logFatal(err, false)
+
+	logInfo(fmt.Sprintf("Server status %s", piaConfig.Status))
+
+	if piaConfig.Status == "OK" {
+		logInfo("Got server config successfully.")
+		configFile := genWgConfigFile(piaConfig, keyPair)
+		writeFile("/etc/wireguard/pia.conf", configFile)
+		logInfo("Bringing up wg interface")
+		err := runShellCommand("wg-quick", []string{"up", "pia"})
+		if err != nil {
+			logFatal(err, false)
+		}
+		logInfo("WireGuard connection established")
+	} else {
+		log.Fatalln("failed")
+	}
+
+	return piaConfig, auth
 }
