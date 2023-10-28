@@ -11,8 +11,10 @@ import (
 	"time"
 )
 
+var portForwardFailCount = 0
+
 // function to get and parse region JSON data
-func getPIAServerData() (RegionData, error) {
+func getPIAServerData() (error) {
 	var regionData RegionData
 	var pfRegions []Region
 
@@ -31,7 +33,8 @@ func getPIAServerData() (RegionData, error) {
 	sort.Slice(regionData.Regions[:], func(i, j int) bool {
 		return regionData.Regions[i].Name < regionData.Regions[j].Name
 	})
-	return regionData, err
+	serverData = regionData
+	return err
 }
 
 func pickRegion(data *RegionData) Region {
@@ -84,7 +87,7 @@ func getPIAConfig(serverIP, serverPort, token, pubKey string) (PIAConfig, error)
 	return piaConfig, err
 }
 
-func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature, PIAPFPayload, error) {
+func getPFSignature(serverIP, serverPort, token string) (*PIAPayloadAndSignature, uint16, error) {
 
 	var payloadAndSignature PIAPayloadAndSignature
 	var payload PIAPFPayload
@@ -99,10 +102,10 @@ func getPFSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature,
 	payload_json, _ := b64.StdEncoding.DecodeString(payloadAndSignature.Payload)
 	json.Unmarshal(payload_json, &payload)
 
-	return payloadAndSignature, payload, err
+	return &payloadAndSignature, payload.Port, err
 }
 
-func requestBindPort(serverIP, serverPort string, pldSig PIAPayloadAndSignature) (PIAPFStatus, error) {
+func requestBindPort(serverIP, serverPort string, pldSig *PIAPayloadAndSignature) (PIAPFStatus, error) {
 
 	var pfStatus PIAPFStatus
 
@@ -118,7 +121,7 @@ func requestBindPort(serverIP, serverPort string, pldSig PIAPayloadAndSignature)
 	return pfStatus, err
 }
 
-func refreshPortForward(paySig PIAPayloadAndSignature, config *PIAConfig) {
+func refreshPortForward(paySig *PIAPayloadAndSignature, config *PIAConfig) {
 	defer waitGroup.Done()
 	for {
 		pfStatus, err := requestBindPort(
@@ -127,8 +130,19 @@ func refreshPortForward(paySig PIAPayloadAndSignature, config *PIAConfig) {
 			paySig,
 		)
 		if err != nil {
-			restartServices()
+
+			logWarn(err.Error())
+			portForwardFailCount += 1
+
+			if portForwardFailCount >= 3 {
+				err := restartServices()
+				if err != nil {
+					logWarn(err.Error())
+				}
+				portForwardFailCount = 0
+			}
 		}
+
 		if pfStatus.Status == "OK" {
 			logInfo("Port Forwarding: " + pfStatus.Message)
 		}

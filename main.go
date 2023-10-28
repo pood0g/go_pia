@@ -12,10 +12,11 @@ import (
 
 var TLSClient = getTLSClient()
 var waitGroup sync.WaitGroup
+var config goPiaConfig
+var region Region
+var serverData RegionData
 
 func main() {
-
-	var config goPiaConfig
 
 	// Perform runtime checks
 	if runtime.GOOS != "linux" {
@@ -28,7 +29,7 @@ func main() {
 
 	// Fetch PIA server data
 	logInfo("Requesting Server and Region Data")
-	serverData, err := getPIAServerData()
+	err := getPIAServerData()
 	if err != nil {
 		logFatal(err.Error())
 	}
@@ -46,8 +47,8 @@ func main() {
 		json.Unmarshal(configFile, &config)
 	}
 
-	// Ask user to select region from list
-	region := func() Region {
+	// Get configured region from serverData.Regions
+	region = func() Region {
 		var regRet Region
 		for _, reg := range serverData.Regions {
 			if config.PiaRegion == reg.ID {
@@ -62,7 +63,7 @@ func main() {
 	piaConfig, auth := connectToPIA(&config, &region, &serverData)
 
 	// Get Port Forwarding Auth
-	payloadAndSignature, payload, err := getPFSignature(
+	payloadAndSignature, portNo, err := getPFSignature(
 		piaConfig.ServerVIP,
 		"19999",
 		auth.Token,
@@ -71,7 +72,7 @@ func main() {
 		log.Printf("Port Forwarding failed - %s", err)
 	}
 
-	logInfo(fmt.Sprintf("Got Signature and Payload, requesting port bind for port %d", payload.Port))
+	logInfo(fmt.Sprintf("Got Signature and Payload, requesting port bind for port %d", portNo))
 
 	waitGroup.Add(1)
 
@@ -81,7 +82,7 @@ func main() {
 	// update settings.json
 	tConfig := getTransmissionSettings()
 	tConfig.BindAddressIpv4 = piaConfig.PeerIP
-	tConfig.PeerPort = payload.Port
+	tConfig.PeerPort = portNo
 	tConfig.RPCUsername = config.TransUser
 	tConfig.RPCPassword = config.TransPass
 	err = writeTransmissionSettings(tConfig)

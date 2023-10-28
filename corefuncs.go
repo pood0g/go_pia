@@ -57,6 +57,7 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 
 func restartServices() error {
 	logWarn("Connection Interupted, restarting!")
+	
 	logInfo("Bringing down wg interface")
 	err := runShellCommand("wg-quick", []string{"down", "pia"})
 	if err != nil {
@@ -64,5 +65,21 @@ func restartServices() error {
 	}
 	logInfo("Terminating Transmission Daemon")
 	err = runShellCommand("pkill", []string{"-9", "transmission-daemon"})
+	if err != nil {
+		return err
+	}
+
+	
+
+	logInfo("Bringing up wg interface")
+	err = runShellCommand("wg-quick", []string{"down", "pia"})
+	if err != nil {
+		return err
+	}
+	logInfo("Restarting transmission-daemon")
+	err = startTransmission()
+	if err != nil {
+		logFatal(err.Error())
+	}
 	return err
 }
