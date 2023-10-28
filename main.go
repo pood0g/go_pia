@@ -8,8 +8,6 @@ import (
 	"os/user"
 	"runtime"
 	"sync"
-
-	
 )
 
 var TLSClient = getTLSClient()
@@ -19,20 +17,21 @@ func main() {
 
 	var config goPiaConfig
 
-	// begin runtime checks
+	// Perform runtime checks
 	if runtime.GOOS != "linux" {
-		log.Fatalf("%s This app currently only supports linux OS", LOGERROR)
+		logFatal("This app currently only supports linux OS")
 	}
 
 	if cur_user, _ := user.Current(); cur_user.Uid != "0" {
-		log.Fatalf("%s Please run this program as root", LOGERROR)
+		logFatal("Please run this program as root")
 	}
-	// end runtime checks
 
-	// refresh PIA server data
+	// Fetch PIA server data
 	logInfo("Requesting Server and Region Data")
 	serverData, err := getPIAServerData()
-	logFatal(err, false)
+	if err != nil {
+		logFatal(err.Error())
+	}
 
 	// Check configuration file exists and load, else run configuration tool
 	configFile, err := os.ReadFile(CONFIG_FILE)
@@ -58,12 +57,11 @@ func main() {
 		}
 		return regRet
 	}()
-	// End ask user for region
-	
+
 	// Begin connect to PIA
 	piaConfig, auth := connectToPIA(&config, &region, &serverData)
 
-	// Begin PortForwarding
+	// Get Port Forwarding Auth
 	payloadAndSignature, payload, err := getPFSignature(
 		piaConfig.ServerVIP,
 		"19999",
@@ -87,17 +85,21 @@ func main() {
 	tConfig.RPCUsername = config.TransUser
 	tConfig.RPCPassword = config.TransPass
 	err = writeTransmissionSettings(tConfig)
-	logFatal(err, true)
-	
+	if err != nil {
+		logFatal(err.Error())
+	}
+
 	// Start transmission-daemon + stunnel TLS proxy
 	logInfo("Starting stunnel")
 	err = startStunnel()
-	logFatal(err, true)
+	if err != nil {
+		logFatal(err.Error())
+	}
 	logInfo("Starting transmission-daemon")
 	err = startTransmission()
-	logFatal(err, true)
-
+	if err != nil {
+		logFatal(err.Error())
+	}
 	waitGroup.Wait()
 
 }
-

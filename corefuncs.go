@@ -21,7 +21,7 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 	fmt.Printf("Enter PIA password: ")
 	passBytes, err := term.ReadPassword(0)
 	if err != nil {
-		logFatal(err, false)
+		logFatal(err.Error())
 	}
 	fmt.Println()
 	config.PiaPass = string(passBytes)
@@ -31,7 +31,7 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 	fmt.Printf("Enter Transmission password: ")
 	tPassBytes, err := term.ReadPassword(0)
 	if err != nil {
-		logFatal(err, false)
+		logFatal(err.Error())
 	}
 	fmt.Println()
 
@@ -53,4 +53,16 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 	jsonData, _ := json.Marshal(config)
 
 	os.WriteFile(CONFIG_FILE, jsonData, 0600)
+}
+
+func restartServices() error {
+	logWarn("Connection Interupted, restarting!")
+	logInfo("Bringing down wg interface")
+	err := runShellCommand("wg-quick", []string{"down", "pia"})
+	if err != nil {
+		return err
+	}
+	logInfo("Terminating Transmission Daemon")
+	err = runShellCommand("pkill", []string{"-9", "transmission-daemon"})
+	return err
 }

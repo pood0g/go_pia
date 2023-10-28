@@ -5,11 +5,10 @@ import (
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/url"
 	"sort"
 	"time"
-	"math/rand"
-	"log"
 )
 
 // function to get and parse region JSON data
@@ -119,7 +118,7 @@ func requestBindPort(serverIP, serverPort string, pldSig PIAPayloadAndSignature)
 	return pfStatus, err
 }
 
-func refreshPortForward (paySig PIAPayloadAndSignature, config *PIAConfig) {
+func refreshPortForward(paySig PIAPayloadAndSignature, config *PIAConfig) {
 	defer waitGroup.Done()
 	for {
 		pfStatus, err := requestBindPort(
@@ -127,26 +126,30 @@ func refreshPortForward (paySig PIAPayloadAndSignature, config *PIAConfig) {
 			"19999",
 			paySig,
 		)
-		logFatal(err, true)
+		if err != nil {
+			restartServices()
+		}
 		if pfStatus.Status == "OK" {
 			logInfo("Port Forwarding: " + pfStatus.Message)
 		}
-		time.Sleep(time.Minute * 14 + time.Second * 50)
+		time.Sleep(time.Minute*14 + time.Second*50)
 	}
 }
 
-func connectToPIA (config *goPiaConfig, region *Region, serverData *RegionData) (PIAConfig, PIAToken) {
-	
+func connectToPIA(config *goPiaConfig, region *Region, serverData *RegionData) (PIAConfig, PIAToken) {
+
 	rand_server := rand.Intn(len(region.Servers.Wg))
 	ip := region.Servers.Wg[rand_server].IP
-	
+
 	logInfo("Creating WireGuard Key Pair")
 	keyPair := genKeyPair()
 
 	// Begin connect to PIA
 	logInfo(fmt.Sprintf("Connecting to %s - %s\n", region.Name, ip))
 	auth, err := getToken(config.PiaUser, config.PiaPass)
-	logFatal(err, false)
+	if err != nil {
+		logFatal(err.Error())
+	}
 	logInfo("Got auth token.")
 
 	piaConfig, err := getPIAConfig(
@@ -155,7 +158,9 @@ func connectToPIA (config *goPiaConfig, region *Region, serverData *RegionData) 
 		auth.Token,
 		keyPair.pubKey,
 	)
-	logFatal(err, false)
+	if err != nil {
+		logFatal(err.Error())
+	}
 
 	logInfo(fmt.Sprintf("Server status %s", piaConfig.Status))
 
@@ -166,11 +171,11 @@ func connectToPIA (config *goPiaConfig, region *Region, serverData *RegionData) 
 		logInfo("Bringing up wg interface")
 		err := runShellCommand("wg-quick", []string{"up", "pia"})
 		if err != nil {
-			logFatal(err, false)
+			logFatal(err.Error())
 		}
 		logInfo("WireGuard connection established")
 	} else {
-		log.Fatalln("failed")
+		logFatal("WireGuard connection failed")
 	}
 
 	return piaConfig, auth

@@ -9,7 +9,9 @@ import (
 func getTransmissionSettings() TransmissionSettings {
 	var config TransmissionSettings
 	curConfig, err := os.ReadFile(T_CONF_FILE)
-	logFatal(err, true)
+	if err != nil {
+		logFatal(err.Error())
+	}
 	json.Unmarshal(curConfig, &config)
 	return config
 }

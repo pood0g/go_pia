@@ -94,7 +94,9 @@ func verifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	rootCAs := x509.NewCertPool()
 
 	caCert, err := os.ReadFile(PIA_CERT)
-	logFatal(err, false)
+	if err != nil {
+		logFatal(err.Error())
+	}
 	if ok := rootCAs.AppendCertsFromPEM(caCert); !ok {
 		logWarn("Certificate not added.")
 	}
