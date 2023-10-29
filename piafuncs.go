@@ -11,10 +11,8 @@ import (
 	"time"
 )
 
-var portForwardFailCount = 0
-
 // function to get and parse region JSON data
-func getPIAServerData() (error) {
+func getPIAServerData() (RegionData, error) {
 	var regionData RegionData
 	var pfRegions []Region
 
@@ -33,8 +31,8 @@ func getPIAServerData() (error) {
 	sort.Slice(regionData.Regions[:], func(i, j int) bool {
 		return regionData.Regions[i].Name < regionData.Regions[j].Name
 	})
-	serverData = regionData
-	return err
+	
+	return regionData, err
 }
 
 func pickRegion(data *RegionData) Region {
@@ -87,7 +85,7 @@ func getPIAConfig(serverIP, serverPort, token, pubKey string) (PIAConfig, error)
 	return piaConfig, err
 }
 
-func getPFSignature(serverIP, serverPort, token string) (*PIAPayloadAndSignature, uint16, error) {
+func getPortForwardSignature(serverIP, serverPort, token string) (*PIAPayloadAndSignature, uint16, error) {
 
 	var payloadAndSignature PIAPayloadAndSignature
 	var payload PIAPFPayload
@@ -123,6 +121,8 @@ func requestBindPort(serverIP, serverPort string, pldSig *PIAPayloadAndSignature
 
 func refreshPortForward(paySig *PIAPayloadAndSignature, config *PIAConfig) {
 	defer waitGroup.Done()
+	var portForwardFailCount = 0
+	
 	for {
 		pfStatus, err := requestBindPort(
 			config.ServerVIP,
@@ -134,7 +134,7 @@ func refreshPortForward(paySig *PIAPayloadAndSignature, config *PIAConfig) {
 			logWarn(err.Error())
 			portForwardFailCount += 1
 
-			if portForwardFailCount >= 3 {
+			if portForwardFailCount >= 2 {
 				err := restartServices()
 				if err != nil {
 					logWarn(err.Error())

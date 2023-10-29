@@ -10,14 +10,11 @@ import (
 	"sync"
 )
 
-var TLSClient = getTLSClient()
 var waitGroup sync.WaitGroup
-var config goPiaConfig
-var region Region
-var serverData RegionData
 
 func main() {
-
+	var config goPiaConfig
+	
 	// Perform runtime checks
 	if runtime.GOOS != "linux" {
 		logFatal("This app currently only supports linux OS")
@@ -29,7 +26,7 @@ func main() {
 
 	// Fetch PIA server data
 	logInfo("Requesting Server and Region Data")
-	err := getPIAServerData()
+	serverData, err := getPIAServerData()
 	if err != nil {
 		logFatal(err.Error())
 	}
@@ -47,23 +44,24 @@ func main() {
 		json.Unmarshal(configFile, &config)
 	}
 
-	// Get configured region from serverData.Regions
-	region = func() Region {
-		var regRet Region
-		for _, reg := range serverData.Regions {
-			if config.PiaRegion == reg.ID {
-				regRet = reg
+	// Get configured region from serverData.Regions anonymous function.
+	region := func() Region {
+		var ret Region
+		
+		for _, elem := range serverData.Regions {
+			if config.PiaRegion == elem.ID {
+				ret = elem
 				break
 			}
 		}
-		return regRet
+		return ret
 	}()
 
 	// Begin connect to PIA
 	piaConfig, auth := connectToPIA(&config, &region, &serverData)
 
 	// Get Port Forwarding Auth
-	payloadAndSignature, portNo, err := getPFSignature(
+	payloadAndSignature, portNo, err := getPortForwardSignature(
 		piaConfig.ServerVIP,
 		"19999",
 		auth.Token,

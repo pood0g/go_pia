@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+var TLSClient = getTLSClient()
+
 func makeGETRequest(url string) ([]byte, error) {
 
 	resp, err := http.Get(url)

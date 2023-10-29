@@ -18,7 +18,7 @@ func runShellCommand(command string, args []string) error {
 func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 	fmt.Printf("Enter PIA Username: ")
 	fmt.Scanln(&config.PiaUser)
-	fmt.Printf("Enter PIA password: ")
+	fmt.Printf("Enter PIA password (Not Echoed): ")
 	passBytes, err := term.ReadPassword(0)
 	if err != nil {
 		logFatal(err.Error())
@@ -28,13 +28,14 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 
 	fmt.Printf("Enter Transmission Username: ")
 	fmt.Scanln(&config.TransUser)
-	fmt.Printf("Enter Transmission password: ")
+	fmt.Printf("Enter Transmission password (Not Echoed): ")
 	tPassBytes, err := term.ReadPassword(0)
 	if err != nil {
 		logFatal(err.Error())
 	}
 	fmt.Println()
-
+	fmt.Println("The following UID/GID should be set to the same values as")
+	fmt.Println("the owner of the directories where downloads are to be stored.")
 	fmt.Printf("Enter linux UID: ")
 	fmt.Scanln(&config.LinuxUID)
 	fmt.Printf("Enter linux GID: ")
