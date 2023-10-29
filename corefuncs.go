@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
-	"encoding/json"
 
 	"golang.org/x/term"
 )
@@ -16,6 +16,8 @@ func runShellCommand(command string, args []string) error {
 }
 
 func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
+	fmt.Println("The following username and password will be used to connect")
+	fmt.Println("to the Private Internet Access VPN")
 	fmt.Printf("Enter PIA Username: ")
 	fmt.Scanln(&config.PiaUser)
 	fmt.Printf("Enter PIA password (Not Echoed): ")
@@ -25,7 +27,8 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 	}
 	fmt.Println()
 	config.PiaPass = string(passBytes)
-
+	fmt.Println("The following username and password will be used to access the")
+	fmt.Println("Transmission daemon web interface")
 	fmt.Printf("Enter Transmission Username: ")
 	fmt.Scanln(&config.TransUser)
 	fmt.Printf("Enter Transmission password (Not Echoed): ")
@@ -49,7 +52,6 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 		logWarn(LOGERROR + "Configuration items cannot be blank.")
 		os.Exit(1)
 	}
-	
 
 	jsonData, _ := json.Marshal(config)
 
@@ -58,7 +60,7 @@ func makeConfiguration(config *goPiaConfig, serverData *RegionData) {
 
 func restartServices() error {
 	logWarn("Connection Interupted, restarting!")
-	
+
 	logInfo("Bringing down wg interface")
 	err := runShellCommand("wg-quick", []string{"down", "pia"})
 	if err != nil {
@@ -69,8 +71,6 @@ func restartServices() error {
 	if err != nil {
 		return err
 	}
-
-	
 
 	logInfo("Bringing up wg interface")
 	err = runShellCommand("wg-quick", []string{"down", "pia"})
