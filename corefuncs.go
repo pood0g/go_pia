@@ -73,7 +73,7 @@ func restartServices() error {
 	}
 
 	logInfo("Bringing up wg interface")
-	err = runShellCommand("wg-quick", []string{"down", "pia"})
+	err = runShellCommand("wg-quick", []string{"up", "pia"})
 	if err != nil {
 		return err
 	}

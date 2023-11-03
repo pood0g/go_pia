@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
@@ -67,7 +66,7 @@ func main() {
 		auth.Token,
 	)
 	if err != nil {
-		log.Printf("Port Forwarding failed - %s", err)
+		logWarn(fmt.Sprintf("Port Forwarding failed - %s", err))
 	}
 
 	logInfo(fmt.Sprintf("Got Signature and Payload, requesting port bind for port %d", portNo))
@@ -75,7 +74,7 @@ func main() {
 	waitGroup.Add(1)
 
 	// begin forever go routine for port forwarding anonymous function
-	go refreshPortForward(payloadAndSignature, &piaConfig)
+	go refreshPortForward(&payloadAndSignature, &piaConfig)
 
 	// update settings.json
 	tConfig := getTransmissionSettings()
@@ -88,12 +87,7 @@ func main() {
 		logFatal(err.Error())
 	}
 
-	// Start transmission-daemon + stunnel TLS proxy
-	logInfo("Starting stunnel")
-	err = startStunnel()
-	if err != nil {
-		logFatal(err.Error())
-	}
+	// Start transmission-daemon
 	logInfo("Starting transmission-daemon")
 	err = startTransmission()
 	if err != nil {

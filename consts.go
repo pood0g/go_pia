@@ -1,6 +1,6 @@
 package main
 
-// Terminal colours
+// ANSI Terminal colours
 
 const (
 	RESET    = "\033[0m"

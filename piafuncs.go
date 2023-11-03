@@ -85,7 +85,7 @@ func getPIAConfig(serverIP, serverPort, token, pubKey string) (PIAConfig, error)
 	return piaConfig, err
 }
 
-func getPortForwardSignature(serverIP, serverPort, token string) (*PIAPayloadAndSignature, uint16, error) {
+func getPortForwardSignature(serverIP, serverPort, token string) (PIAPayloadAndSignature, uint16, error) {
 
 	var payloadAndSignature PIAPayloadAndSignature
 	var payload PIAPFPayload
@@ -100,7 +100,7 @@ func getPortForwardSignature(serverIP, serverPort, token string) (*PIAPayloadAnd
 	payload_json, _ := b64.StdEncoding.DecodeString(payloadAndSignature.Payload)
 	json.Unmarshal(payload_json, &payload)
 
-	return &payloadAndSignature, payload.Port, err
+	return payloadAndSignature, payload.Port, err
 }
 
 func requestBindPort(serverIP, serverPort string, pldSig *PIAPayloadAndSignature) (PIAPFStatus, error) {
