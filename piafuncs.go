@@ -31,7 +31,7 @@ func getPIAServerData() (RegionData, error) {
 	sort.Slice(regionData.Regions[:], func(i, j int) bool {
 		return regionData.Regions[i].Name < regionData.Regions[j].Name
 	})
-	
+
 	return regionData, err
 }
 
@@ -122,7 +122,7 @@ func requestBindPort(serverIP, serverPort string, pldSig *PIAPayloadAndSignature
 func refreshPortForward(paySig *PIAPayloadAndSignature, config *PIAConfig) {
 	defer waitGroup.Done()
 	var portForwardFailCount = 0
-	
+
 	for {
 		pfStatus, err := requestBindPort(
 			config.ServerVIP,
@@ -135,18 +135,18 @@ func refreshPortForward(paySig *PIAPayloadAndSignature, config *PIAConfig) {
 			portForwardFailCount += 1
 
 			if portForwardFailCount >= 2 {
-				err := restartServices()
+				err := killServices()
 				if err != nil {
 					logWarn(err.Error())
 				}
-				portForwardFailCount = 0
+				logFatal("Ending session.")
 			}
 		}
 
 		if pfStatus.Status == "OK" {
 			logInfo("Port Forwarding: " + pfStatus.Message)
 		}
-		time.Sleep(time.Minute*14 + time.Second*50)
+		time.Sleep(time.Minute*15)
 	}
 }
 

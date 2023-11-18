@@ -56,7 +56,7 @@ func startTransmission() error {
 
 
 func writeTransmissionSettings(settings TransmissionSettings) error {
-	config, err := json.Marshal(settings)
+	config, err := json.MarshalIndent(settings, "", "    ")
 	if err != nil {
 		return err
 	}
