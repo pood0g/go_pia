@@ -18,5 +18,7 @@ func (i WgConfigInterface) getText() string {
 	config += fmt.Sprintf("Address = %s\n", i.Address)
 	config += fmt.Sprintf("PrivateKey = %s\n", i.PrivateKey)
 	config += fmt.Sprintf("DNS = %s\n", i.DNS)
+	config += fmt.Sprintf("PostUp = %s\n", i.PostUp)
+	config += fmt.Sprintf("PreDown = %s\n", i.PreDown)
 	return config
 }

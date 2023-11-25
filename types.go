@@ -102,12 +102,6 @@ type WGKeyPair struct {
 	prvKey string
 }
 
-// type AppConfig struct {
-// 	username string
-// 	password string
-// 	region uint8
-// }
-
 type WgConfigPeer struct {
 	PersistenceKeepalive uint8
 	PublicKey            string
@@ -119,8 +113,8 @@ type WgConfigInterface struct {
 	Address    string
 	PrivateKey string
 	DNS        string
-	// PreUp	   string
-	// PostDown   string
+	PostUp     string
+	PreDown    string
 }
 
 type WgConfig interface {
@@ -153,8 +147,8 @@ type TransmissionSettings struct {
 	IdleSeedingLimitEnabled          bool   `json:"idle-seeding-limit-enabled,omitempty"`
 	IncompleteDir                    string `json:"incomplete-dir,omitempty"`
 	IncompleteDirEnabled             bool   `json:"incomplete-dir-enabled,omitempty"`
-	WatchDir						 string `json:"watch-dir,omitempty"`
-	WatchDirEnabled					 bool	`json:"watch-dir-enabled,omitempty"`
+	WatchDir                         string `json:"watch-dir,omitempty"`
+	WatchDirEnabled                  bool   `json:"watch-dir-enabled,omitempty"`
 	LpdEnabled                       bool   `json:"lpd-enabled,omitempty"`
 	MessageLevel                     int    `json:"message-level,omitempty"`
 	PeerCongestionAlgorithm          string `json:"peer-congestion-algorithm,omitempty"`

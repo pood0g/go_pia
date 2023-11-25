@@ -65,8 +65,8 @@ func genWgConfigFile(conf PIAConfig, keys WGKeyPair) []byte {
 		Address:    conf.PeerIP,
 		PrivateKey: keys.prvKey,
 		DNS:        strings.Join(conf.DNSServers, ", "),
-		// PreUp: "ip route add %s via 172.17.0.1 dev eth0",
-		// PostDown: "ip route del %s via 172.17.0.1 dev eth0",
+		PostUp:     "/app/route_transmission.sh up",
+		PreDown:    "/app/route_transmission.sh down",
 	}
 	peer := WgConfigPeer{
 		PersistenceKeepalive: 25,
